@@ -10,8 +10,8 @@ export const agency = {
   shortTagline: "Temporada de Alto Padrão",
   tagline:
     "Casas, lofts e chalés selecionados para alugar por temporada no litoral e na serra — anfitriões locais, fotos reais e check-in sem burocracia.",
-  city: "Búzios · RJ",
-  phone: "+5522999999999",
+  city: "Caldas Novas · GO",
+  phone: "+5564999999999",
   email: "contato@villamare.com.br",
   instagram: "https://instagram.com/villamare.temporada",
   response: "Responde em até 15 min",
