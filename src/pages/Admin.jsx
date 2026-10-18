@@ -843,7 +843,7 @@ export default function Admin() {
                 <div className={`mt-3.5 ${previewTheme.heroCardClass}`}>
                   <div className="relative aspect-[16/10] rounded-[22px] sm:rounded-[28px] overflow-hidden bg-slate-900 shadow-md">
                     <img
-                      src={formData.imagens?.[0] || DEFAULT_PROPERTY.imagens[0]}
+                      src={formData.imagens?.[0] || "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80"}
                       alt="Prévia do Imóvel"
                       className="w-full h-full object-cover"
                     />
