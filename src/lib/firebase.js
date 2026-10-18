@@ -19,28 +19,9 @@ export const DEFAULT_PROPERTY = {
   tema: "modern-app", // 'modern-app' | 'vidro' | 'neumorfismo' | 'obsidiana' | 'brutalista' | 'salvia' | 'retro' | 'ocean' | 'forest' | 'luxury'
   max_hospedes: 10,
   mostrar_calendario: true,
-  // Mapa de datas ocupadas padrão: { "YYYY-MM-DD": { origem: 'airbnb' | 'booking' | 'direto' | 'bloqueado', nota?: string } }
-  datas_ocupadas: {
-    "2026-10-21": { origem: "airbnb", nota: "Reserva Airbnb" },
-    "2026-10-22": { origem: "airbnb", nota: "Reserva Airbnb" },
-    "2026-10-23": { origem: "airbnb", nota: "Reserva Airbnb" },
-    "2026-10-27": { origem: "booking", nota: "Hóspedes Booking" },
-    "2026-10-28": { origem: "booking", nota: "Hóspedes Booking" },
-    "2026-10-29": { origem: "booking", nota: "Hóspedes Booking" },
-    "2026-11-06": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
-    "2026-11-07": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
-    "2026-11-08": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
-    "2026-11-14": { origem: "bloqueado", nota: "Manutenção / Uso Próprio" },
-    "2026-11-15": { origem: "bloqueado", nota: "Manutenção / Uso Próprio" },
-  },
-  imagens: [
-    "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80",
-  ],
+  // Mapa de datas ocupadas: { "YYYY-MM-DD": { origem: 'airbnb' | 'booking' | 'direto' | 'bloqueado', nota?: string } }
+  datas_ocupadas: {},
+  imagens: [],
 };
 
 const LOCAL_STORAGE_KEY = "home_paraiso_property_data_v4";
@@ -93,8 +74,8 @@ export const getLocalProperty = () => {
       return {
         ...DEFAULT_PROPERTY,
         ...parsed,
-        datas_ocupadas: parsed.datas_ocupadas !== undefined ? parsed.datas_ocupadas : DEFAULT_PROPERTY.datas_ocupadas,
-        imagens: Array.isArray(parsed.imagens) ? parsed.imagens : DEFAULT_PROPERTY.imagens,
+        datas_ocupadas: parsed.datas_ocupadas || {},
+        imagens: Array.isArray(parsed.imagens) ? parsed.imagens : [],
       };
     }
   } catch (err) {
@@ -130,12 +111,11 @@ export const subscribeToProperty = (onData, onError) => {
       (docSnap) => {
         if (docSnap.exists()) {
           const remoteData = docSnap.data();
-          // O que está no Firestore tem prioridade total e reflete o que o usuário gerencia no painel
           const merged = {
             ...DEFAULT_PROPERTY,
             ...remoteData,
-            datas_ocupadas: remoteData.datas_ocupadas !== undefined ? remoteData.datas_ocupadas : DEFAULT_PROPERTY.datas_ocupadas,
-            imagens: Array.isArray(remoteData.imagens) ? remoteData.imagens : DEFAULT_PROPERTY.imagens,
+            datas_ocupadas: remoteData.datas_ocupadas || {},
+            imagens: Array.isArray(remoteData.imagens) ? remoteData.imagens : [],
           };
           saveLocalProperty(merged);
           onData(merged);
