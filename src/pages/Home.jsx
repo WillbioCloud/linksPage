@@ -123,19 +123,13 @@ export default function Home() {
       {/* Container Principal Centralizado (com a largura e elegância do App Resort da imagem) */}
       <div className={theme.containerClass}>
         {/* Top Header Simplificado */}
-        <header className="flex items-center justify-between pb-5 pt-2">
+        <header className="flex items-center pb-5 pt-2">
           <div className="flex items-center gap-2.5">
             <Logo className={`w-7 h-7 sm:w-8 sm:h-8 ${theme.accentText} shrink-0 transition-transform duration-300 hover:scale-110`} />
             <span className="font-extrabold text-base sm:text-lg tracking-tight">
               {property.titulo}
             </span>
           </div>
-
-          <span
-            className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full ${theme.pillClass}`}
-          >
-            {theme.badge}
-          </span>
         </header>
 
         {/* ======================================================== */}

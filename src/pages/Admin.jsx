@@ -828,16 +828,13 @@ export default function Admin() {
             <div className="p-4 sm:p-6 max-h-[68vh] overflow-y-auto no-scrollbar space-y-4">
               <div className={`rounded-3xl p-4 sm:p-5 transition-all ${previewTheme.bgClass} shadow-inner`}>
                 {/* Cabeçalho no tema */}
-                <div className="flex items-center justify-between pb-3.5 border-b border-black/10 dark:border-white/10">
+                <div className="flex items-center pb-3.5 border-b border-black/10 dark:border-white/10">
                   <div className="flex items-center gap-2">
                     <Logo className={`w-5 h-5 sm:w-6 sm:h-6 ${previewTheme.accentText} shrink-0`} />
                     <span className="font-extrabold text-sm sm:text-base tracking-tight">
                       {formData.titulo || "Home Paraíso"}
                     </span>
                   </div>
-                  <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${previewTheme.pillClass}`}>
-                    {previewTheme.badge}
-                  </span>
                 </div>
 
                 {/* Hero Card no Tema */}
