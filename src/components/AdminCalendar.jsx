@@ -79,8 +79,39 @@ export default function AdminCalendar({
   );
 
   const [selectedOrigin, setSelectedOrigin] = useState("airbnb");
-  // Suporte a seleção de período direto pelo calendário (clique no início e depois no fim)
+  const [mode, setMode] = useState("single"); // 'single' (toque rápido 1 dia) | 'range' (período check-in / check-out)
   const [rangeStart, setRangeStart] = useState(null);
+
+  const formatDateKey = (year, month, day) => {
+    const y = year;
+    const m = String(month + 1).padStart(2, "0");
+    const d = String(day).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
+  const todayKey = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate());
+
+  // Calcula todas as datas do intervalo de forma 100% local (sem problemas de fuso UTC)
+  const getDatesInRange = (startDateKey, endDateKey) => {
+    const [y1, m1, d1] = startDateKey.split("-").map(Number);
+    const [y2, m2, d2] = endDateKey.split("-").map(Number);
+    let start = new Date(y1, m1 - 1, d1);
+    let end = new Date(y2, m2 - 1, d2);
+
+    if (start > end) {
+      const temp = start;
+      start = end;
+      end = temp;
+    }
+
+    const keys = [];
+    const curr = new Date(start);
+    while (curr <= end) {
+      keys.push(formatDateKey(curr.getFullYear(), curr.getMonth(), curr.getDate()));
+      curr.setDate(curr.getDate() + 1);
+    }
+    return keys;
+  };
 
   const handlePrevMonth = () => {
     setCurrentDate(
@@ -94,62 +125,32 @@ export default function AdminCalendar({
     );
   };
 
-  const formatDateKey = (year, month, day) => {
-    const y = year;
-    const m = String(month + 1).padStart(2, "0");
-    const d = String(day).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  };
-
-  // Clique interativo no calendário com suporte a 1 dia ou período direto
+  // Clique no calendário: marcação instantânea ou por período
   const handleDayClick = (dateKey) => {
     const next = { ...datasOcupadas };
 
-    // Se não havia data inicial de período selecionada
-    if (!rangeStart) {
+    if (mode === "single") {
+      // Modo Toque Rápido: toque simples marca ou desmarca imediatamente
       if (next[dateKey]) {
-        // Se já está ocupado, um toque simples desmarca/libera
         delete next[dateKey];
-        onChange(next);
       } else {
-        // Marca o início de um possível período ou dia avulso
-        setRangeStart(dateKey);
+        next[dateKey] = { origem: selectedOrigin };
       }
+      onChange(next);
+      return;
+    }
+
+    // Modo Período: início e fim
+    if (!rangeStart) {
+      setRangeStart(dateKey);
     } else {
-      // Já havia uma data inicial selecionada: fecha o período!
-      let start = rangeStart;
-      let end = dateKey;
-
-      if (start > end) {
-        // Inverte se clicou em ordem decrescente
-        const temp = start;
-        start = end;
-        end = temp;
-      }
-
-      let cursor = new Date(`${start}T00:00:00`);
-      const endDate = new Date(`${end}T00:00:00`);
-
-      while (cursor <= endDate) {
-        const key = cursor.toISOString().split("T")[0];
-        next[key] = {
-          origem: selectedOrigin,
-        };
-        cursor.setDate(cursor.getDate() + 1);
-      }
-
+      const datesToMark = getDatesInRange(rangeStart, dateKey);
+      datesToMark.forEach((k) => {
+        next[k] = { origem: selectedOrigin };
+      });
       setRangeStart(null);
       onChange(next);
     }
-  };
-
-  // Confirmar apenas o dia avulso se o usuário quiser marcar só um dia
-  const handleConfirmSingleDay = () => {
-    if (!rangeStart) return;
-    const next = { ...datasOcupadas };
-    next[rangeStart] = { origem: selectedOrigin };
-    setRangeStart(null);
-    onChange(next);
   };
 
   const handleCancelRange = () => {
@@ -241,59 +242,97 @@ export default function AdminCalendar({
         </button>
       </div>
 
-      {/* 2. Seletor de Origem de Ocupação */}
-      <div className="space-y-2">
-        <label className="text-xs uppercase font-bold text-slate-400 tracking-wider">
-          Canal para marcar no calendário:
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {Object.values(ORIGIN_CONFIG).map((org) => {
-            const isSelected = selectedOrigin === org.id;
-            return (
-              <button
-                key={org.id}
-                type="button"
-                onClick={() => setSelectedOrigin(org.id)}
-                className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
-                  isSelected
-                    ? `${org.border} bg-slate-800 text-white font-bold ring-2 ring-white/20 shadow-md scale-102`
-                    : "border-slate-800 bg-slate-950 text-slate-400 hover:text-white"
-                }`}
-              >
-                <span className={`w-3.5 h-3.5 rounded-full ${org.color} shrink-0`} />
-                <span className="text-xs truncate">{org.name}</span>
-              </button>
-            );
-          })}
+      {/* 2. Modo de Marcação & Seletor de Origem de Ocupação */}
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="space-y-0.5">
+            <label className="text-xs uppercase font-bold text-slate-400 tracking-wider">
+              Modo de Marcação:
+            </label>
+            <p className="text-[11px] text-slate-500">
+              {mode === "single"
+                ? "Toque rápido: marque ou desmarque cada dia com 1 toque instantâneo."
+                : "Marcar período: toque na data de entrada e depois na de saída."}
+            </p>
+          </div>
+
+          <div className="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-800 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("single");
+                setRangeStart(null);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                mode === "single"
+                  ? "bg-sky-500 text-white shadow-md"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              👆 Toque Rápido (1 Dia)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode("range");
+                setRangeStart(null);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                mode === "range"
+                  ? "bg-sky-500 text-white shadow-md"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              📅 Marcar Período
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs uppercase font-bold text-slate-400 tracking-wider">
+            Canal selecionado para marcar:
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {Object.values(ORIGIN_CONFIG).map((org) => {
+              const isSelected = selectedOrigin === org.id;
+              return (
+                <button
+                  key={org.id}
+                  type="button"
+                  onClick={() => setSelectedOrigin(org.id)}
+                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
+                    isSelected
+                      ? `${org.border} bg-slate-800 text-white font-bold ring-2 ring-white/20 shadow-md scale-102`
+                      : "border-slate-800 bg-slate-950 text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 rounded-full ${org.color} shrink-0`} />
+                  <span className="text-xs truncate">{org.name}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Alerta / Barra de seleção de período ativa */}
-      {rangeStart && (
+      {/* Alerta quando o modo período estiver ativo aguardando check-out */}
+      {mode === "range" && rangeStart && (
         <div className="p-3.5 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-200 text-xs flex flex-wrap items-center justify-between gap-3 animate-in fade-in">
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-blue-400 shrink-0" />
             <span>
-              Início: <strong>{rangeStart.split("-").reverse().join("/")}</strong>. Toque na data final no calendário para marcar o período, ou confirme apenas este dia.
+              Check-in selecionado: <strong>{rangeStart.split("-").reverse().join("/")}</strong>. Agora toque no dia de check-out no calendário para preencher o período com <strong>{ORIGIN_CONFIG[selectedOrigin]?.name}</strong>.
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleConfirmSingleDay}
-              className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs"
-            >
-              Marcar só este dia
-            </button>
-            <button
-              type="button"
-              onClick={handleCancelRange}
-              className="p-1 rounded text-blue-300 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleCancelRange}
+            className="px-2.5 py-1 rounded-lg bg-blue-500/30 hover:bg-blue-500/50 text-blue-100 text-xs font-semibold flex items-center gap-1"
+          >
+            <X className="w-3.5 h-3.5" />
+            <span>Cancelar</span>
+          </button>
         </div>
       )}
 
@@ -328,7 +367,7 @@ export default function AdminCalendar({
         </div>
 
         <p className="text-[11px] text-slate-400">
-          💡 <strong>Como marcar:</strong> Toque em um dia livre para começar. Para marcar várias noites seguidas, toque no dia de check-in e depois no de check-out. Para desmarcar, basta tocar no dia ocupado.
+          💡 <strong>Dica:</strong> Toque em um dia livre para marcar instantaneamente como <strong>{ORIGIN_CONFIG[selectedOrigin]?.name}</strong>. Toque em um dia ocupado para liberar a data.
         </p>
 
         {/* Grid de dias */}
@@ -345,7 +384,7 @@ export default function AdminCalendar({
                 return (
                   <div
                     key={item.key}
-                    className="h-10 rounded-lg flex items-center justify-center text-xs text-slate-700 select-none"
+                    className="h-11 rounded-lg flex items-center justify-center text-xs text-slate-700 select-none"
                   >
                     {item.day}
                   </div>
@@ -356,17 +395,26 @@ export default function AdminCalendar({
               const config = item.info
                 ? ORIGIN_CONFIG[item.info.origem] || ORIGIN_CONFIG.bloqueado
                 : null;
+              const isToday = item.key === todayKey;
+              const isPast = item.key < todayKey;
 
               let cellStyle =
-                "h-11 rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all relative";
+                "h-11 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all relative cursor-pointer select-none";
 
               if (isStartSelected) {
                 cellStyle += " bg-blue-500 text-white ring-2 ring-white shadow-lg scale-105 z-10";
               } else if (config) {
-                cellStyle += ` ${config.color} text-white shadow-md hover:opacity-90`;
+                cellStyle += ` ${config.color} text-white shadow-md hover:brightness-110 active:scale-95`;
               } else {
                 cellStyle +=
-                  " bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white active:scale-95";
+                  " bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white active:scale-95 border border-slate-800/80";
+                if (isPast) {
+                  cellStyle += " opacity-60";
+                }
+              }
+
+              if (isToday) {
+                cellStyle += " ring-2 ring-sky-400 ring-offset-2 ring-offset-slate-950";
               }
 
               return (
@@ -375,14 +423,24 @@ export default function AdminCalendar({
                   type="button"
                   onClick={() => handleDayClick(item.key)}
                   className={cellStyle}
-                  title={item.info?.nota || (config ? config.name : "Livre - toque para marcar")}
+                  title={
+                    config
+                      ? `${item.day} - Ocupado (${config.name}). Toque para liberar.`
+                      : isPast
+                      ? `${item.day} (Anterior a hoje). Toque para marcar.`
+                      : `${item.day} (Livre). Toque para marcar como ${ORIGIN_CONFIG[selectedOrigin]?.name}.`
+                  }
                 >
-                  <span>{item.day}</span>
-                  {config && (
-                    <span className="text-[8px] uppercase tracking-tighter opacity-90 block -mt-0.5">
+                  <span className={isPast && !config ? "text-slate-400" : ""}>{item.day}</span>
+                  {config ? (
+                    <span className="text-[8px] uppercase tracking-tighter opacity-95 block -mt-0.5 font-black truncate max-w-full px-1">
                       {config.name.split(" ")[0]}
                     </span>
-                  )}
+                  ) : isToday ? (
+                    <span className="text-[7px] uppercase tracking-tighter text-sky-400 font-extrabold block -mt-0.5">
+                      Hoje
+                    </span>
+                  ) : null}
                 </button>
               );
             })}

@@ -44,14 +44,23 @@ import { useToast } from "@/components/ui/use-toast";
 // Utilitário para formatar qualquer telefone no padrão brasileiro (+55 64 99999-9999)
 export function formatPhoneInput(value) {
   if (!value) return "";
-  let digits = String(value).replace(/\D/g, "");
+  let raw = String(value);
 
-  // Se já começar com 55 e tiver tamanho de DDI + DDD + número (>= 12 dígitos), remove o 55 inicial
-  if (digits.startsWith("55") && digits.length >= 12) {
+  // Se for uma URL completa do WhatsApp (ex: https://wa.me/5564999999999)
+  if (raw.includes("wa.me/")) {
+    raw = raw.split("wa.me/")[1]?.split("?")[0] || "";
+  }
+
+  // Remove o prefixo visual "+55" se já estiver no início
+  let withoutCountryCode = raw.trim().replace(/^\+55\s*/, "");
+  let digits = withoutCountryCode.replace(/\D/g, "");
+
+  // Se o usuário colou um número que já tem 55 no início (ex: 5564999999999 com 12 ou 13 dígitos)
+  if (digits.length >= 12 && digits.startsWith("55")) {
     digits = digits.slice(2);
   }
 
-  // Limita a 11 dígitos (DDD 2 dígitos + celular 9 dígitos)
+  // Limita ao máximo de 11 dígitos (DDD 2 dígitos + número celular 9 dígitos)
   digits = digits.slice(0, 11);
 
   if (digits.length === 0) return "";
@@ -66,12 +75,15 @@ export function formatPhoneInput(value) {
 
 // Gera o link https://wa.me/55... a partir do telefone
 export function generateWhatsAppUrlFromPhone(phoneStr) {
-  let digits = String(phoneStr || "").replace(/\D/g, "");
+  let raw = String(phoneStr || "");
+  let withoutCountryCode = raw.trim().replace(/^\+55\s*/, "");
+  let digits = withoutCountryCode.replace(/\D/g, "");
+
   if (!digits) return "https://wa.me/5564999999999";
-  if (!digits.startsWith("55")) {
-    digits = "55" + digits;
+  if (digits.length >= 12 && digits.startsWith("55")) {
+    return `https://wa.me/${digits}`;
   }
-  return `https://wa.me/${digits}`;
+  return `https://wa.me/55${digits}`;
 }
 
 export default function Admin() {

@@ -21,14 +21,19 @@ export const DEFAULT_PROPERTY = {
   mostrar_calendario: true,
   // Mapa de datas ocupadas: { "YYYY-MM-DD": { origem: 'airbnb' | 'booking' | 'direto' | 'bloqueado', nota?: string } }
   datas_ocupadas: {
-    "2026-05-01": { origem: "airbnb", nota: "Feriado do Trabalho" },
-    "2026-05-02": { origem: "airbnb", nota: "Feriado do Trabalho" },
-    "2026-05-03": { origem: "airbnb", nota: "Feriado do Trabalho" },
-    "2026-05-15": { origem: "booking", nota: "Hóspedes Booking" },
-    "2026-05-16": { origem: "booking", nota: "Hóspedes Booking" },
-    "2026-05-22": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
-    "2026-05-23": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
-    "2026-05-24": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
+    // Outubro 2026 (mês atual)
+    "2026-10-21": { origem: "airbnb", nota: "Reserva Airbnb" },
+    "2026-10-22": { origem: "airbnb", nota: "Reserva Airbnb" },
+    "2026-10-23": { origem: "airbnb", nota: "Reserva Airbnb" },
+    "2026-10-27": { origem: "booking", nota: "Hóspedes Booking" },
+    "2026-10-28": { origem: "booking", nota: "Hóspedes Booking" },
+    "2026-10-29": { origem: "booking", nota: "Hóspedes Booking" },
+    // Novembro 2026 (próximo mês)
+    "2026-11-06": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
+    "2026-11-07": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
+    "2026-11-08": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
+    "2026-11-14": { origem: "bloqueado", nota: "Manutenção / Uso Próprio" },
+    "2026-11-15": { origem: "bloqueado", nota: "Manutenção / Uso Próprio" },
   },
   imagens: [
     "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
@@ -40,7 +45,7 @@ export const DEFAULT_PROPERTY = {
   ],
 };
 
-const LOCAL_STORAGE_KEY = "home_paraiso_property_data_v2";
+const LOCAL_STORAGE_KEY = "home_paraiso_property_data_v3";
 
 // Configuração oficial do Firebase da Home Paraíso
 const firebaseConfig = {
@@ -86,7 +91,15 @@ export const getLocalProperty = () => {
   try {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (stored) {
-      return { ...DEFAULT_PROPERTY, ...JSON.parse(stored) };
+      const parsed = JSON.parse(stored);
+      return {
+        ...DEFAULT_PROPERTY,
+        ...parsed,
+        datas_ocupadas: {
+          ...DEFAULT_PROPERTY.datas_ocupadas,
+          ...(parsed.datas_ocupadas || {}),
+        },
+      };
     }
   } catch (err) {
     console.error("Erro ao ler localStorage:", err);
@@ -121,7 +134,14 @@ export const subscribeToProperty = (onData, onError) => {
       (docSnap) => {
         if (docSnap.exists()) {
           const remoteData = docSnap.data();
-          const merged = { ...DEFAULT_PROPERTY, ...remoteData };
+          const merged = {
+            ...DEFAULT_PROPERTY,
+            ...remoteData,
+            datas_ocupadas: {
+              ...DEFAULT_PROPERTY.datas_ocupadas,
+              ...(remoteData.datas_ocupadas || {}),
+            },
+          };
           saveLocalProperty(merged);
           onData(merged);
         } else {

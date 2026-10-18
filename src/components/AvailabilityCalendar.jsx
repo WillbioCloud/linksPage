@@ -78,6 +78,30 @@ export default function AvailabilityCalendar({
     return `${d}/${m}/${y}`;
   };
 
+  const todayKey = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate());
+
+  // Retorna todas as chaves de datas entre startDateKey e endDateKey
+  const getDatesInRange = (startDateKey, endDateKey) => {
+    const [y1, m1, d1] = startDateKey.split("-").map(Number);
+    const [y2, m2, d2] = endDateKey.split("-").map(Number);
+    let start = new Date(y1, m1 - 1, d1);
+    let end = new Date(y2, m2 - 1, d2);
+
+    if (start > end) {
+      const temp = start;
+      start = end;
+      end = temp;
+    }
+
+    const keys = [];
+    const curr = new Date(start);
+    while (curr <= end) {
+      keys.push(formatDateKey(curr.getFullYear(), curr.getMonth(), curr.getDate()));
+      curr.setDate(curr.getDate() + 1);
+    }
+    return keys;
+  };
+
   // Cálculo dos dias do mês atual
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -91,9 +115,15 @@ export default function AvailabilityCalendar({
     return Boolean(occupiedDates[dateKey]);
   };
 
-  // Seleção de datas
+  // Verifica se a data já passou (anterior a hoje)
+  const isPast = (dateKey) => {
+    return dateKey < todayKey;
+  };
+
+  // Seleção de datas no calendário da página
   const handleDateClick = (dateKey) => {
-    if (isOccupied(dateKey)) return;
+    // Dias anteriores a hoje ou ocupados não podem ser clicados
+    if (isPast(dateKey) || isOccupied(dateKey)) return;
 
     if (!checkIn || (checkIn && checkOut)) {
       setCheckIn(dateKey);
@@ -105,22 +135,12 @@ export default function AvailabilityCalendar({
       } else if (dateKey === checkIn) {
         setCheckIn(null);
       } else {
-        // Verifica se há dias ocupados no intervalo selecionado
-        let hasOccupiedInRange = false;
-        let cursor = new Date(checkIn);
-        const end = new Date(dateKey);
+        // Verifica se há dias ocupados ou passados no intervalo selecionado
+        const range = getDatesInRange(checkIn, dateKey);
+        const hasBlocked = range.some((k) => isPast(k) || isOccupied(k));
 
-        while (cursor <= end) {
-          const key = cursor.toISOString().split("T")[0];
-          if (isOccupied(key)) {
-            hasOccupiedInRange = true;
-            break;
-          }
-          cursor.setDate(cursor.getDate() + 1);
-        }
-
-        if (hasOccupiedInRange) {
-          // Se houver ocupação no meio, recomeça com o novo check-in
+        if (hasBlocked) {
+          // Se houver dia ocupado ou indisponível no meio, recomeça com o novo check-in
           setCheckIn(dateKey);
           setCheckOut(null);
         } else {
@@ -311,6 +331,8 @@ export default function AvailabilityCalendar({
               );
             }
 
+            const isPastDate = item.key < todayKey;
+            const isOccupiedDate = item.occupied;
             const isSelectedCheckIn = checkIn === item.key;
             const isSelectedCheckOut = checkOut === item.key;
             const isInRange =
@@ -320,33 +342,49 @@ export default function AvailabilityCalendar({
               item.key < checkOut;
 
             let cellClass =
-              "h-10 sm:h-12 rounded-2xl flex flex-col items-center justify-center text-xs font-bold transition-all relative cursor-pointer";
+              "h-11 sm:h-12 rounded-2xl flex flex-col items-center justify-center text-xs font-bold transition-all relative select-none";
 
-            if (item.occupied) {
+            if (isPastDate) {
               cellClass +=
-                " bg-red-500/10 text-red-500/70 border border-red-500/20 cursor-not-allowed line-through opacity-60";
+                " bg-slate-100/50 dark:bg-slate-900/30 text-slate-300 dark:text-slate-600 line-through cursor-not-allowed opacity-35 border border-transparent";
+            } else if (isOccupiedDate) {
+              cellClass +=
+                " bg-rose-500 text-white font-extrabold shadow-sm border border-rose-600 cursor-not-allowed";
             } else if (isSelectedCheckIn || isSelectedCheckOut) {
               cellClass +=
-                " bg-blue-600 text-white font-black shadow-lg scale-105 z-10";
+                " bg-blue-600 text-white font-black shadow-lg scale-105 z-10 ring-2 ring-white/50";
             } else if (isInRange) {
-              cellClass += " bg-blue-500/20 text-blue-600 font-extrabold";
+              cellClass +=
+                " bg-blue-500/20 text-blue-600 dark:text-blue-400 font-extrabold border border-blue-500/30";
             } else {
               cellClass +=
-                " hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 border border-transparent";
+                " hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 border border-slate-200/60 dark:border-white/10 cursor-pointer text-slate-800 dark:text-slate-100";
             }
 
             return (
               <button
                 key={item.key}
                 type="button"
-                disabled={item.occupied}
+                disabled={isPastDate || isOccupiedDate}
                 onClick={() => handleDateClick(item.key)}
                 className={cellClass}
+                title={
+                  isPastDate
+                    ? "Data anterior a hoje (indisponível)"
+                    : isOccupiedDate
+                    ? "Data ocupada / reservada"
+                    : "Disponível para reserva"
+                }
               >
-                <span>{item.day}</span>
-                {item.occupied && (
-                  <span className="text-[8px] uppercase tracking-tighter opacity-80 block -mt-0.5">
+                <span className={isPastDate ? "line-through opacity-70" : ""}>{item.day}</span>
+                {isOccupiedDate && !isPastDate && (
+                  <span className="text-[8px] uppercase tracking-tighter text-white font-black block -mt-0.5">
                     Ocupado
+                  </span>
+                )}
+                {isPastDate && (
+                  <span className="text-[7px] uppercase tracking-tighter text-slate-400 font-semibold block -mt-0.5">
+                    Indisp.
                   </span>
                 )}
               </button>
@@ -355,10 +393,10 @@ export default function AvailabilityCalendar({
         </div>
       </div>
 
-      {/* Legenda simples */}
-      <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-semibold opacity-70 pt-1">
+      {/* Legenda clara com status Disponível, Selecionado, Ocupado e Passado */}
+      <div className="flex flex-wrap items-center justify-center gap-3.5 text-[11px] font-semibold opacity-80 pt-1">
         <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-emerald-500" />
+          <span className="w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300" />
           <span>Disponível</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -366,8 +404,12 @@ export default function AvailabilityCalendar({
           <span>Selecionado</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-400 opacity-60" />
-          <span>Ocupado / Reservado</span>
+          <span className="w-3 h-3 rounded-full bg-rose-500" />
+          <span>Ocupado</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-800 opacity-40" />
+          <span className="line-through text-slate-400">Anterior a hoje</span>
         </div>
       </div>
 
