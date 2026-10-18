@@ -11,6 +11,8 @@ import {
   Car,
   Utensils,
   Sparkles,
+  BedDouble,
+  Bath,
   Clock,
   CalendarCheck,
   CheckCircle2,
@@ -184,7 +186,7 @@ export default function Home() {
                     Diária da temporada
                   </span>
                   <span className="text-xs sm:text-sm font-semibold text-white/90">
-                    Piscina aquecida privativa
+                    Direto com o proprietário
                   </span>
                 </div>
 
@@ -238,9 +240,62 @@ export default function Home() {
         </section>
 
         {/* ======================================================== */}
+        {/* DESTAQUES DA ESTRUTURA (QUARTOS, SUÍTES, BANHEIROS, VAGAS) */}
+        {/* ======================================================== */}
+        <section className="grid grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-5">
+          <div
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 rounded-2xl ${theme.cardClass} text-center shadow-sm border border-slate-200/60 dark:border-white/10 transition-transform duration-300 hover:scale-[1.02]`}
+          >
+            <BedDouble className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
+            <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
+              {property.quartos ?? 3}
+            </span>
+            <span className="text-[10px] sm:text-xs opacity-60 font-semibold leading-tight">
+              {Number(property.quartos ?? 3) === 1 ? "Quarto" : "Quartos"}
+            </span>
+          </div>
+
+          <div
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 rounded-2xl ${theme.cardClass} text-center shadow-sm border border-slate-200/60 dark:border-white/10 transition-transform duration-300 hover:scale-[1.02]`}
+          >
+            <Sparkles className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
+            <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
+              {property.suites ?? 1}
+            </span>
+            <span className="text-[10px] sm:text-xs opacity-60 font-semibold leading-tight">
+              {Number(property.suites ?? 1) === 1 ? "Suíte" : "Suítes"}
+            </span>
+          </div>
+
+          <div
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 rounded-2xl ${theme.cardClass} text-center shadow-sm border border-slate-200/60 dark:border-white/10 transition-transform duration-300 hover:scale-[1.02]`}
+          >
+            <Bath className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
+            <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
+              {property.banheiros ?? 3}
+            </span>
+            <span className="text-[10px] sm:text-xs opacity-60 font-semibold leading-tight">
+              {Number(property.banheiros ?? 3) === 1 ? "Banheiro" : "Banheiros"}
+            </span>
+          </div>
+
+          <div
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 rounded-2xl ${theme.cardClass} text-center shadow-sm border border-slate-200/60 dark:border-white/10 transition-transform duration-300 hover:scale-[1.02]`}
+          >
+            <Car className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
+            <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
+              {property.vagas_garagem ?? 2}
+            </span>
+            <span className="text-[10px] sm:text-xs opacity-60 font-semibold leading-tight">
+              {Number(property.vagas_garagem ?? 2) === 1 ? "Vaga" : "Vagas"}
+            </span>
+          </div>
+        </section>
+
+        {/* ======================================================== */}
         {/* DESCRIÇÃO E BOTÃO PRINCIPAL "NEXT / DISPONIBILIDADE"     */}
         {/* ======================================================== */}
-        <section className={`p-6 sm:p-7 rounded-[32px] space-y-5 mt-5 ${theme.cardClass}`}>
+        <section className={`p-6 sm:p-7 rounded-[32px] space-y-5 mt-4 sm:mt-5 ${theme.cardClass}`}>
           <div className="space-y-2">
             <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
               <span>Descrição</span>
@@ -267,7 +322,7 @@ export default function Home() {
             className={`w-full py-4 px-6 rounded-2xl text-base font-black flex items-center justify-center gap-2 tracking-wide shadow-lg ${theme.buttonPrimary}`}
           >
             <Calendar className="w-5 h-5" />
-            <span>Ver Disponibilidade & Reservar</span>
+            <span>Ver Disponibilidade</span>
           </button>
         </section>
 
@@ -382,15 +437,6 @@ export default function Home() {
         {/* Rodapé com Link do Admin */}
         <footer className="pt-12 text-center space-y-3 opacity-70 text-xs">
           <p>© 2026 {property.titulo} · Caldas Novas, GO.</p>
-          <div>
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity py-1 px-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Painel da Proprietária</span>
-            </Link>
-          </div>
         </footer>
       </div>
 

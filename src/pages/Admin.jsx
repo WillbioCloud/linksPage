@@ -20,6 +20,9 @@ import {
   Users,
   MapPin,
   Phone,
+  BedDouble,
+  Bath,
+  Car,
   X,
 } from "lucide-react";
 import {
@@ -506,6 +509,74 @@ export default function Admin() {
             </div>
           </div>
 
+          {/* Estrutura do Imóvel: Quartos, Suítes, Banheiros, Vagas */}
+          <div className="pt-2 border-t border-slate-800/80">
+            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2.5">
+              Estrutura & Cômodos do Imóvel
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
+                  <BedDouble className="w-3.5 h-3.5 text-sky-400" />
+                  Quartos
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="20"
+                  value={formData.quartos ?? 3}
+                  onChange={(e) => handleChange("quartos", parseInt(e.target.value, 10) || 0)}
+                  className="w-full h-11 bg-slate-950 border border-slate-700 rounded-xl px-3 text-sm font-semibold focus:outline-none focus:border-sky-400 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  Suítes
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="20"
+                  value={formData.suites ?? 1}
+                  onChange={(e) => handleChange("suites", parseInt(e.target.value, 10) || 0)}
+                  className="w-full h-11 bg-slate-950 border border-slate-700 rounded-xl px-3 text-sm font-semibold focus:outline-none focus:border-sky-400 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
+                  <Bath className="w-3.5 h-3.5 text-cyan-400" />
+                  Banheiros
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="20"
+                  value={formData.banheiros ?? 3}
+                  onChange={(e) => handleChange("banheiros", parseInt(e.target.value, 10) || 0)}
+                  className="w-full h-11 bg-slate-950 border border-slate-700 rounded-xl px-3 text-sm font-semibold focus:outline-none focus:border-sky-400 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
+                  <Car className="w-3.5 h-3.5 text-emerald-400" />
+                  Vagas Garagem
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="20"
+                  value={formData.vagas_garagem ?? 2}
+                  onChange={(e) => handleChange("vagas_garagem", parseInt(e.target.value, 10) || 0)}
+                  className="w-full h-11 bg-slate-950 border border-slate-700 rounded-xl px-3 text-sm font-semibold focus:outline-none focus:border-sky-400 transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
@@ -873,6 +944,26 @@ export default function Admin() {
                     >
                       <span>Reservar no WhatsApp</span>
                     </button>
+                  </div>
+                </div>
+
+                {/* Tags da Estrutura no Tema */}
+                <div className="grid grid-cols-4 gap-1.5 mt-3">
+                  <div className={`p-2 rounded-xl ${previewTheme.cardClass} text-center`}>
+                    <BedDouble className={`w-3.5 h-3.5 mx-auto ${previewTheme.accentText} mb-0.5`} />
+                    <span className="text-[10px] font-black block">{formData.quartos ?? 3} Qts</span>
+                  </div>
+                  <div className={`p-2 rounded-xl ${previewTheme.cardClass} text-center`}>
+                    <Sparkles className={`w-3.5 h-3.5 mx-auto ${previewTheme.accentText} mb-0.5`} />
+                    <span className="text-[10px] font-black block">{formData.suites ?? 1} St</span>
+                  </div>
+                  <div className={`p-2 rounded-xl ${previewTheme.cardClass} text-center`}>
+                    <Bath className={`w-3.5 h-3.5 mx-auto ${previewTheme.accentText} mb-0.5`} />
+                    <span className="text-[10px] font-black block">{formData.banheiros ?? 3} Banh</span>
+                  </div>
+                  <div className={`p-2 rounded-xl ${previewTheme.cardClass} text-center`}>
+                    <Car className={`w-3.5 h-3.5 mx-auto ${previewTheme.accentText} mb-0.5`} />
+                    <span className="text-[10px] font-black block">{formData.vagas_garagem ?? 2} Vagas</span>
                   </div>
                 </div>
 

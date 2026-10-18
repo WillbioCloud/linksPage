@@ -478,7 +478,7 @@ export default function AvailabilityCalendar({
           <span>
             {checkIn && checkOut
               ? `Reservar ${nights} noite${nights > 1 ? "s" : ""} no WhatsApp`
-              : "Consultar Disponibilidade no WhatsApp"}
+              : "Reservar no WhatsApp"}
           </span>
         </a>
       </div>

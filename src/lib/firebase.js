@@ -18,6 +18,10 @@ export const DEFAULT_PROPERTY = {
   link_whatsapp: "https://wa.me/5564999999999",
   tema: "modern-app", // 'modern-app' | 'vidro' | 'neumorfismo' | 'obsidiana' | 'brutalista' | 'salvia' | 'retro' | 'ocean' | 'forest' | 'luxury'
   max_hospedes: 10,
+  quartos: 3,
+  suites: 1,
+  banheiros: 3,
+  vagas_garagem: 2,
   mostrar_calendario: true,
   // Mapa de datas ocupadas: { "YYYY-MM-DD": { origem: 'airbnb' | 'booking' | 'direto' | 'bloqueado', nota?: string } }
   datas_ocupadas: {},
