@@ -7,7 +7,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
-// Configuração padrão completa da propriedade com disponibilidade e temas
+// Configuração padrão completa da propriedade Home Paraíso
 export const DEFAULT_PROPERTY = {
   titulo: "Home Paraíso",
   cidade: "Caldas Novas · GO",
@@ -42,14 +42,26 @@ export const DEFAULT_PROPERTY = {
 
 const LOCAL_STORAGE_KEY = "home_paraiso_property_data_v2";
 
-// Credenciais do Firebase vindas das variáveis de ambiente (Vite)
+// Configuração oficial do Firebase da Home Paraíso
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey:
+    import.meta.env.VITE_FIREBASE_API_KEY ||
+    "AIzaSyCKRqA6sft_PtiXDhyKiVn7a-LYbZdIV5w",
+  authDomain:
+    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ||
+    "home-paraiso.firebaseapp.com",
+  projectId:
+    import.meta.env.VITE_FIREBASE_PROJECT_ID ||
+    "home-paraiso",
+  storageBucket:
+    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ||
+    "home-paraiso.firebasestorage.app",
+  messagingSenderId:
+    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID ||
+    "892480658780",
+  appId:
+    import.meta.env.VITE_FIREBASE_APP_ID ||
+    "1:892480658780:web:d25a585871522778277599",
 };
 
 export const isFirebaseConfigured = () => {
@@ -60,15 +72,14 @@ export const isFirebaseConfigured = () => {
   );
 };
 
+// Inicializa o app e o Firestore
 let db = null;
 
-if (isFirebaseConfigured()) {
-  try {
-    const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-    db = getFirestore(app);
-  } catch (error) {
-    console.warn("Aviso ao inicializar Firebase:", error);
-  }
+try {
+  const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  db = getFirestore(app);
+} catch (error) {
+  console.warn("Aviso ao inicializar Firebase Firestore:", error);
 }
 
 export const getLocalProperty = () => {
@@ -91,6 +102,10 @@ export const saveLocalProperty = (data) => {
   }
 };
 
+/**
+ * Escuta em tempo real o documento 'propriedades/home-paraiso' no Firestore.
+ * Se o documento ainda não existir no banco, ele cria automaticamente!
+ */
 export const subscribeToProperty = (onData, onError) => {
   const initial = getLocalProperty();
   onData(initial);
@@ -110,11 +125,14 @@ export const subscribeToProperty = (onData, onError) => {
           saveLocalProperty(merged);
           onData(merged);
         } else {
-          savePropertyToFirebase(initial).catch(() => {});
+          // Se ainda não existir no Firestore, grava o primeiro documento inicial
+          savePropertyToFirebase(initial).catch((err) => {
+            console.warn("Criando documento inicial no Firestore:", err);
+          });
         }
       },
       (error) => {
-        console.warn("Erro ao escutar Firestore (usando dados locais):", error);
+        console.warn("Erro no listener do Firestore (usando fallback local):", error);
         onError?.(error);
       }
     );
@@ -127,6 +145,9 @@ export const subscribeToProperty = (onData, onError) => {
   }
 };
 
+/**
+ * Salva ou atualiza os dados da propriedade no Firestore
+ */
 export const savePropertyToFirebase = async (propertyData) => {
   saveLocalProperty(propertyData);
 
@@ -134,8 +155,7 @@ export const savePropertyToFirebase = async (propertyData) => {
     return {
       success: true,
       mode: "local",
-      message:
-        "Salvo localmente com sucesso! (Adicione as chaves do Firebase para sincronizar na nuvem)",
+      message: "Salvo localmente com sucesso!",
     };
   }
 
@@ -145,7 +165,7 @@ export const savePropertyToFirebase = async (propertyData) => {
     return {
       success: true,
       mode: "cloud",
-      message: "Propriedade atualizada com sucesso no Firebase!",
+      message: "Propriedade atualizada com sucesso no Firebase Firestore!",
     };
   } catch (error) {
     console.error("Erro ao salvar no Firestore:", error);

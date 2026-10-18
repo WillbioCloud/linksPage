@@ -73,8 +73,8 @@ export default function Home() {
     },
     {
       icon: Wifi,
-      title: "Wi-Fi Fibra Óptica 500MB",
-      desc: "Conexão rápida e estável para trabalhar e transmitir",
+      title: "Wi-Fi Grátis",
+      desc: "Conexão rápida e estável para se manter conectado",
     },
     {
       icon: Car,
@@ -293,7 +293,7 @@ export default function Home() {
         <section className="pt-8 space-y-4">
           <div className="space-y-1 px-1">
             <span className={`text-xs uppercase font-extrabold tracking-wider ${theme.accentText}`}>
-              Estrutura Premium
+              Estrutura Aconchegante
             </span>
             <h2 className="text-2xl font-black tracking-tight">O que você vai encontrar</h2>
           </div>
