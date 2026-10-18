@@ -10,6 +10,7 @@ import {
   MessageCircle,
   X,
 } from "lucide-react";
+import { getTheme, getCalendarThemeStyles } from "@/lib/themeStyles";
 
 const MONTH_NAMES = [
   "Janeiro",
@@ -34,6 +35,10 @@ export default function AvailabilityCalendar({
   onClose,
   isModal = false,
 }) {
+  const themeId = property?.tema || theme?.id || "modern-app";
+  const activeTheme = theme || getTheme(themeId);
+  const calStyle = getCalendarThemeStyles(themeId, isModal);
+
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1)
@@ -222,18 +227,14 @@ export default function AvailabilityCalendar({
 
   return (
     <div
-      className={`w-full rounded-[32px] p-5 sm:p-7 space-y-6 transition-all ${
-        isModal
-          ? "bg-white text-slate-900 shadow-2xl border border-slate-200"
-          : `${theme.cardClass}`
-      }`}
+      className={`w-full p-5 sm:p-7 space-y-6 transition-all ${calStyle.containerClass}`}
     >
       {/* Top Bar (quando em modal) */}
       {isModal && (
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
-            <h3 className="font-extrabold text-base tracking-tight text-slate-900">
+            <span className={`w-2.5 h-2.5 rounded-full ${calStyle.legendDotSelected}`} />
+            <h3 className="font-extrabold text-base tracking-tight">
               Disponibilidade & Opções
             </h3>
           </div>
@@ -241,7 +242,8 @@ export default function AvailabilityCalendar({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+              className={`p-1.5 rounded-full ${calStyle.navButton} opacity-70 hover:opacity-100 transition-colors`}
+              aria-label="Fechar"
             >
               <X className="w-5 h-5" />
             </button>
@@ -251,14 +253,10 @@ export default function AvailabilityCalendar({
 
       {/* Card Resumo de Diária e Noites */}
       <div
-        className={`p-4 rounded-2xl flex items-center justify-between gap-3 ${
-          isModal
-            ? "bg-slate-50 border border-slate-200/80"
-            : `${theme.cardHighlightClass}`
-        }`}
+        className={`p-4 flex items-center justify-between gap-3 transition-all ${calStyle.summaryCardClass}`}
       >
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider opacity-60 block">
+          <span className="text-[10px] font-bold uppercase tracking-wider opacity-70 block">
             Valor da Diária
           </span>
           <span className="text-xl sm:text-2xl font-black tracking-tight">
@@ -269,10 +267,10 @@ export default function AvailabilityCalendar({
 
         {checkIn && checkOut && (
           <div className="text-right">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider opacity-85 block">
               {nights} noite{nights > 1 ? "s" : ""} selecionada{nights > 1 ? "s" : ""}
             </span>
-            <span className="text-lg sm:text-xl font-black text-emerald-600">
+            <span className={`text-lg sm:text-xl font-black ${activeTheme.accentText || "text-emerald-500"}`}>
               R$ {estimatedTotal.toLocaleString("pt-BR")}
             </span>
           </div>
@@ -282,7 +280,7 @@ export default function AvailabilityCalendar({
       {/* Controles do Mês */}
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
-          <CalendarIcon className="w-5 h-5 opacity-70" />
+          <CalendarIcon className={`w-5 h-5 ${activeTheme.accentText || "opacity-70"}`} />
           <h4 className="font-black text-base sm:text-lg tracking-tight">
             {MONTH_NAMES[month]} {year}
           </h4>
@@ -292,7 +290,7 @@ export default function AvailabilityCalendar({
           <button
             type="button"
             onClick={handlePrevMonth}
-            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            className={`p-2 transition-colors ${calStyle.navButton}`}
             aria-label="Mês anterior"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -300,7 +298,7 @@ export default function AvailabilityCalendar({
           <button
             type="button"
             onClick={handleNextMonth}
-            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            className={`p-2 transition-colors ${calStyle.navButton}`}
             aria-label="Próximo mês"
           >
             <ChevronRight className="w-5 h-5" />
@@ -311,7 +309,7 @@ export default function AvailabilityCalendar({
       {/* Grid do Calendário */}
       <div className="space-y-2">
         {/* Cabeçalho dos Dias da Semana */}
-        <div className="grid grid-cols-7 text-center text-xs font-bold opacity-50 pb-1">
+        <div className="grid grid-cols-7 text-center text-xs font-bold opacity-60 pb-1">
           {WEEKDAYS.map((wd) => (
             <div key={wd}>{wd}</div>
           ))}
@@ -342,23 +340,18 @@ export default function AvailabilityCalendar({
               item.key < checkOut;
 
             let cellClass =
-              "h-11 sm:h-12 rounded-2xl flex flex-col items-center justify-center text-xs font-bold transition-all relative select-none";
+              "h-11 sm:h-12 flex flex-col items-center justify-center text-xs font-bold transition-all relative select-none ";
 
             if (isPastDate) {
-              cellClass +=
-                " bg-slate-100/50 dark:bg-slate-900/30 text-slate-300 dark:text-slate-600 line-through cursor-not-allowed opacity-35 border border-transparent";
+              cellClass += calStyle.dayPast;
             } else if (isOccupiedDate) {
-              cellClass +=
-                " bg-rose-500 text-white font-extrabold shadow-sm border border-rose-600 cursor-not-allowed";
+              cellClass += calStyle.dayOccupied;
             } else if (isSelectedCheckIn || isSelectedCheckOut) {
-              cellClass +=
-                " bg-blue-600 text-white font-black shadow-lg scale-105 z-10 ring-2 ring-white/50";
+              cellClass += calStyle.daySelected;
             } else if (isInRange) {
-              cellClass +=
-                " bg-blue-500/20 text-blue-600 dark:text-blue-400 font-extrabold border border-blue-500/30";
+              cellClass += calStyle.dayInRange;
             } else {
-              cellClass +=
-                " hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 border border-slate-200/60 dark:border-white/10 cursor-pointer text-slate-800 dark:text-slate-100";
+              cellClass += ` active:scale-95 cursor-pointer ${calStyle.dayDefault}`;
             }
 
             return (
@@ -378,12 +371,12 @@ export default function AvailabilityCalendar({
               >
                 <span className={isPastDate ? "line-through opacity-70" : ""}>{item.day}</span>
                 {isOccupiedDate && !isPastDate && (
-                  <span className="text-[8px] uppercase tracking-tighter text-white font-black block -mt-0.5">
+                  <span className="text-[8px] uppercase tracking-tighter opacity-90 font-black block -mt-0.5">
                     Ocupado
                   </span>
                 )}
                 {isPastDate && (
-                  <span className="text-[7px] uppercase tracking-tighter text-slate-400 font-semibold block -mt-0.5">
+                  <span className="text-[7px] uppercase tracking-tighter opacity-50 font-semibold block -mt-0.5">
                     Indisp.
                   </span>
                 )}
@@ -396,34 +389,34 @@ export default function AvailabilityCalendar({
       {/* Legenda clara com status Disponível, Selecionado, Ocupado e Passado */}
       <div className="flex flex-wrap items-center justify-center gap-3.5 text-[11px] font-semibold opacity-80 pt-1">
         <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300" />
+          <span className="w-3 h-3 rounded-full border border-current opacity-40 bg-current/10" />
           <span>Disponível</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-blue-600" />
+          <span className={`w-3 h-3 rounded-full ${calStyle.legendDotSelected}`} />
           <span>Selecionado</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-rose-500" />
+          <span className="w-3 h-3 rounded-full bg-rose-500 shadow-sm" />
           <span>Ocupado</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-800 opacity-40" />
-          <span className="line-through text-slate-400">Anterior a hoje</span>
+          <span className="w-3 h-3 rounded-full bg-slate-400/40 opacity-40" />
+          <span className="line-through opacity-70">Anterior a hoje</span>
         </div>
       </div>
 
       {/* Horários Informativos */}
       <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
-        <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 flex items-center gap-2 border border-black/5 dark:border-white/10">
-          <Clock className="w-4 h-4 text-emerald-500" />
+        <div className={`p-3 flex items-center gap-2.5 transition-all ${calStyle.infoCard}`}>
+          <Clock className={`w-4 h-4 shrink-0 ${activeTheme.accentText || "text-emerald-500"}`} />
           <div>
             <span className="text-[10px] opacity-60 block uppercase">Check-in</span>
             <span>A partir das 14:00</span>
           </div>
         </div>
-        <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 flex items-center gap-2 border border-black/5 dark:border-white/10">
-          <Clock className="w-4 h-4 text-amber-500" />
+        <div className={`p-3 flex items-center gap-2.5 transition-all ${calStyle.infoCard}`}>
+          <Clock className="w-4 h-4 text-amber-500 shrink-0 opacity-90" />
           <div>
             <span className="text-[10px] opacity-60 block uppercase">Check-out</span>
             <span>Até às 11:00</span>
@@ -431,11 +424,11 @@ export default function AvailabilityCalendar({
         </div>
       </div>
 
-      {/* Seletor de Hóspedes estilo App (da imagem de referência) */}
+      {/* Seletor de Hóspedes estilo App */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-            <Users className="w-4 h-4 opacity-70" />
+            <Users className={`w-4 h-4 ${activeTheme.accentText || "opacity-70"}`} />
             <span>Número de hóspedes</span>
           </label>
           <span className="text-xs font-semibold opacity-60">
@@ -452,10 +445,10 @@ export default function AvailabilityCalendar({
                   key={num}
                   type="button"
                   onClick={() => setGuestCount(num)}
-                  className={`w-10 sm:w-12 h-10 sm:h-12 shrink-0 rounded-2xl text-xs sm:text-sm font-black transition-all ${
+                  className={`w-10 sm:w-12 h-10 sm:h-12 shrink-0 text-xs sm:text-sm font-black transition-all ${
                     isSelected
-                      ? "bg-blue-600 text-white shadow-lg scale-105"
-                      : "bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/15 opacity-80"
+                      ? calStyle.guestButtonActive
+                      : calStyle.guestButtonInactive
                   }`}
                 >
                   {num}
@@ -472,9 +465,11 @@ export default function AvailabilityCalendar({
           href={generateWhatsAppLink()}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm sm:text-base tracking-wide shadow-xl shadow-blue-500/25 active:scale-98 transition-all"
+          className={`w-full flex items-center justify-center gap-3 py-4 px-6 text-sm sm:text-base tracking-wide ${
+            calStyle.ctaButton || activeTheme.buttonPrimary
+          }`}
         >
-          <MessageCircle className="w-5 h-5 fill-current" />
+          <MessageCircle className="w-5 h-5 fill-current shrink-0" />
           <span>
             {checkIn && checkOut
               ? `Reservar ${nights} noite${nights > 1 ? "s" : ""} no WhatsApp`

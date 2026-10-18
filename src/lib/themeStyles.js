@@ -249,3 +249,287 @@ export const THEMES_CONFIG = {
 export const getTheme = (themeId) => {
   return THEMES_CONFIG[themeId] || THEMES_CONFIG["modern-app"];
 };
+
+/**
+ * Estilização Imersiva do Calendário de Disponibilidade por Tema:
+ * Garante que cores de seleção, dias ocupados, intervalo selecionado,
+ * botões de hóspedes, botão do WhatsApp e modais tenham imersão total no tema ativo.
+ */
+export const getCalendarThemeStyles = (themeId = "modern-app", isModal = false) => {
+  const t = getTheme(themeId);
+
+  switch (themeId) {
+    case "vidro":
+      return {
+        containerClass: isModal
+          ? "bg-[#002842]/95 backdrop-blur-2xl text-white border border-white/20 shadow-2xl rounded-[32px]"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-white/10 backdrop-blur-xl border border-[#00B4D8]/30 shadow-lg text-white",
+        dayDefault:
+          "border border-white/10 bg-white/5 hover:bg-white/15 text-white backdrop-blur-md rounded-2xl",
+        daySelected:
+          "bg-[#00B4D8] text-[#002842] font-black shadow-[0_0_22px_rgba(0,180,216,0.6)] scale-105 z-10 ring-2 ring-white/60 rounded-2xl",
+        dayInRange:
+          "bg-[#00B4D8]/20 text-[#48CAE4] font-extrabold border border-[#00B4D8]/40 rounded-2xl",
+        dayOccupied:
+          "bg-rose-500/80 text-white font-black border border-rose-400/50 rounded-2xl cursor-not-allowed",
+        dayPast:
+          "bg-white/5 text-white/25 line-through cursor-not-allowed opacity-35 border border-transparent rounded-2xl",
+        legendDotSelected: "bg-[#00B4D8] shadow-[0_0_8px_#00B4D8]",
+        guestButtonActive:
+          "bg-[#00B4D8] text-[#002842] font-black shadow-[0_0_15px_rgba(0,180,216,0.5)] scale-105 rounded-2xl",
+        guestButtonInactive:
+          "bg-white/5 hover:bg-white/15 text-white/80 border border-white/10 rounded-2xl",
+        infoCard: "bg-white/5 border border-white/10 text-white rounded-xl backdrop-blur-md",
+        navButton: "hover:bg-white/10 text-white rounded-full",
+        ctaButton: t.buttonPrimary,
+      };
+
+    case "neumorfismo":
+      return {
+        containerClass: isModal
+          ? "bg-[#E0E5EC] text-[#2D3436] shadow-[8px_8px_20px_#a3b1c6,-8px_-8px_20px_#ffffff] border-none rounded-[32px]"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-[#E0E5EC] shadow-[inset_4px_4px_8px_#a3b1c6,inset_-4px_-4px_8px_#ffffff] text-[#2D3436] rounded-2xl",
+        dayDefault:
+          "shadow-[3px_3px_6px_#a3b1c6,-3px_-3px_6px_#ffffff] hover:shadow-[2px_2px_4px_#a3b1c6,-2px_-2px_4px_#ffffff] active:shadow-[inset_2px_2px_4px_#a3b1c6,inset_-2px_-2px_4px_#ffffff] text-[#2D3436] rounded-2xl border-none",
+        daySelected:
+          "bg-[#3f6f60] text-white font-black shadow-[inset_3px_3px_6px_rgba(0,0,0,0.35),inset_-2px_-2px_4px_rgba(255,255,255,0.15)] scale-105 z-10 rounded-2xl",
+        dayInRange:
+          "bg-[#3f6f60]/15 text-[#3f6f60] font-black shadow-[inset_2px_2px_4px_#a3b1c6,inset_-2px_-2px_4px_#ffffff] rounded-2xl",
+        dayOccupied:
+          "bg-[#E0E5EC] text-rose-500 font-black shadow-[inset_2px_2px_5px_#a3b1c6,inset_-2px_-2px_5px_#ffffff] border border-rose-300/40 rounded-2xl cursor-not-allowed",
+        dayPast:
+          "bg-[#E0E5EC] text-slate-400 line-through opacity-40 shadow-[inset_1px_1px_3px_#a3b1c6,inset_-1px_-1px_3px_#ffffff] rounded-2xl cursor-not-allowed",
+        legendDotSelected: "bg-[#3f6f60] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]",
+        guestButtonActive:
+          "bg-[#E0E5EC] shadow-[inset_3px_3px_6px_#a3b1c6,inset_-3px_-3px_6px_#ffffff] text-[#3f6f60] font-black scale-105 rounded-2xl",
+        guestButtonInactive:
+          "shadow-[3px_3px_6px_#a3b1c6,-3px_-3px_6px_#ffffff] hover:shadow-[2px_2px_4px_#a3b1c6,-2px_-2px_4px_#ffffff] text-[#2D3436] rounded-2xl",
+        infoCard:
+          "bg-[#E0E5EC] shadow-[inset_2px_2px_5px_#a3b1c6,inset_-2px_-2px_5px_#ffffff] text-[#2D3436] rounded-xl",
+        navButton:
+          "shadow-[3px_3px_6px_#a3b1c6,-3px_-3px_6px_#ffffff] active:shadow-[inset_2px_2px_4px_#a3b1c6] text-[#2D3436] rounded-full",
+        ctaButton: t.buttonPrimary,
+      };
+
+    case "obsidiana":
+      return {
+        containerClass: isModal
+          ? "bg-[#141414] text-[#F3EFE6] border border-[#C5A059]/40 shadow-2xl rounded-[32px]"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-gradient-to-br from-[#1c1913] to-[#0f0f0f] border border-[#C5A059]/50 shadow-xl text-[#F3EFE6]",
+        dayDefault:
+          "border border-[#C5A059]/20 bg-[#171717] hover:border-[#C5A059]/50 hover:bg-[#1f1f1f] text-[#F3EFE6] rounded-xl",
+        daySelected:
+          "bg-gradient-to-r from-[#C5A059] via-[#e5c76b] to-[#b38e46] text-[#0F0F0F] font-black shadow-[0_0_20px_rgba(197,160,89,0.5)] scale-105 z-10 ring-2 ring-[#C5A059]/50 rounded-xl",
+        dayInRange:
+          "bg-[#C5A059]/20 text-[#D4AF37] font-extrabold border border-[#C5A059]/40 rounded-xl",
+        dayOccupied:
+          "bg-red-950/70 border border-red-500/40 text-red-300 font-extrabold rounded-xl cursor-not-allowed",
+        dayPast:
+          "bg-[#111] text-zinc-600 line-through cursor-not-allowed opacity-35 border border-transparent rounded-xl",
+        legendDotSelected: "bg-[#C5A059] shadow-[0_0_8px_#C5A059]",
+        guestButtonActive:
+          "bg-gradient-to-r from-[#C5A059] to-[#b38e46] text-black font-black shadow-[0_0_15px_rgba(197,160,89,0.4)] scale-105 rounded-xl",
+        guestButtonInactive:
+          "bg-[#171717] hover:bg-[#222] text-[#F3EFE6]/70 border border-[#C5A059]/20 rounded-xl",
+        infoCard: "bg-[#161616] border border-[#C5A059]/25 text-[#F3EFE6] rounded-xl",
+        navButton: "hover:bg-[#C5A059]/15 text-[#C5A059] rounded-full",
+        ctaButton: t.buttonPrimary,
+      };
+
+    case "brutalista":
+      return {
+        containerClass: isModal
+          ? "bg-[#F4F4F4] text-black border-3 border-black shadow-[8px_8px_0_0_#000] rounded-none"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-[#FFC24B] border-2 border-black shadow-[4px_4px_0_0_#000] text-black rounded-none",
+        dayDefault:
+          "border-2 border-black bg-white text-black shadow-[2px_2px_0_0_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0_0_#000] rounded-none font-bold",
+        daySelected:
+          "bg-[#FF3E00] text-white font-black border-2 border-black shadow-[3px_3px_0_0_#000] scale-105 z-10 rounded-none",
+        dayInRange:
+          "bg-[#FFC24B] text-black font-black border-2 border-black rounded-none",
+        dayOccupied:
+          "bg-black text-white font-black border-2 border-black rounded-none line-through cursor-not-allowed",
+        dayPast:
+          "bg-slate-200 text-slate-400 border border-slate-300 line-through cursor-not-allowed opacity-40 rounded-none",
+        legendDotSelected: "bg-[#FF3E00] border border-black",
+        guestButtonActive:
+          "bg-[#FF3E00] text-white font-black border-2 border-black shadow-[2px_2px_0_0_#000] rounded-none scale-105",
+        guestButtonInactive:
+          "bg-white border-2 border-black text-black shadow-[2px_2px_0_0_#000] rounded-none",
+        infoCard: "bg-white border-2 border-black shadow-[3px_3px_0_0_#000] text-black rounded-none",
+        navButton: "border-2 border-black bg-white shadow-[2px_2px_0_0_#000] hover:bg-black hover:text-white rounded-none",
+        ctaButton: t.buttonPrimary,
+      };
+
+    case "salvia":
+      return {
+        containerClass: isModal
+          ? "bg-[#E8EAE3] text-[#2A3B2E] border border-[#4A5D4E]/30 shadow-2xl rounded-[32px]"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-[#4A5D4E] text-[#E8EAE3] border border-[#4A5D4E]/30 shadow-lg rounded-2xl",
+        dayDefault:
+          "border border-[#4A5D4E]/20 bg-white/70 hover:bg-white text-[#2A3B2E] rounded-2xl shadow-sm",
+        daySelected:
+          "bg-[#4A5D4E] text-[#E8EAE3] font-black shadow-[0_8px_20px_rgba(74,93,78,0.35)] scale-105 z-10 ring-2 ring-[#4A5D4E]/40 rounded-2xl",
+        dayInRange:
+          "bg-[#4A5D4E]/15 text-[#2A3B2E] font-bold border border-[#4A5D4E]/30 rounded-2xl",
+        dayOccupied:
+          "bg-rose-500 text-white font-extrabold border border-rose-600 rounded-2xl cursor-not-allowed",
+        dayPast:
+          "bg-slate-200/50 text-slate-400 line-through opacity-35 border border-transparent rounded-2xl cursor-not-allowed",
+        legendDotSelected: "bg-[#4A5D4E]",
+        guestButtonActive:
+          "bg-[#4A5D4E] text-[#E8EAE3] font-black shadow-md scale-105 rounded-2xl",
+        guestButtonInactive:
+          "bg-white/60 hover:bg-white text-[#2A3B2E] border border-[#4A5D4E]/20 rounded-2xl",
+        infoCard: "bg-white/80 border border-[#4A5D4E]/15 text-[#2A3B2E] rounded-xl",
+        navButton: "hover:bg-[#4A5D4E]/15 text-[#4A5D4E] rounded-full",
+        ctaButton: t.buttonPrimary,
+      };
+
+    case "retro":
+      return {
+        containerClass: isModal
+          ? "bg-[#FFF3E2] text-[#14484B] border-2 border-[#14484B] shadow-2xl rounded-[32px]"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-[#14484B] text-[#FFF3E2] border-2 border-[#14484B] shadow-[4px_4px_0_0_#FF6B4A] rounded-2xl",
+        dayDefault:
+          "border-2 border-[#14484B]/30 bg-white/70 hover:bg-white text-[#14484B] rounded-xl font-bold shadow-sm",
+        daySelected:
+          "bg-[#FF6B4A] text-[#FFF3E2] font-black border-2 border-[#14484B] shadow-[3px_3px_0_0_#14484B] scale-105 z-10 rounded-xl",
+        dayInRange:
+          "bg-[#FFC24B] text-[#14484B] font-bold border-2 border-[#14484B]/50 rounded-xl",
+        dayOccupied:
+          "bg-rose-500 text-white font-black border-2 border-[#14484B] rounded-xl cursor-not-allowed",
+        dayPast:
+          "bg-amber-100/50 text-amber-900/30 line-through opacity-35 border border-transparent rounded-xl cursor-not-allowed",
+        legendDotSelected: "bg-[#FF6B4A] border border-[#14484B]",
+        guestButtonActive:
+          "bg-[#FF6B4A] text-[#FFF3E2] font-black border-2 border-[#14484B] shadow-[2px_2px_0_0_#14484B] scale-105 rounded-xl",
+        guestButtonInactive:
+          "bg-white/80 hover:bg-white text-[#14484B] border-2 border-[#14484B]/20 rounded-xl",
+        infoCard: "bg-white border-2 border-[#14484B]/20 text-[#14484B] rounded-xl",
+        navButton: "border-2 border-[#14484B] bg-white hover:bg-[#FFC24B] text-[#14484B] rounded-full",
+        ctaButton: t.buttonPrimary,
+      };
+
+    case "ocean":
+      return {
+        containerClass: isModal
+          ? "bg-[#071724] text-white border border-sky-400/30 shadow-2xl rounded-[32px]"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-gradient-to-br from-sky-900/70 to-slate-900/90 border border-sky-400/40 rounded-2xl shadow-xl text-white",
+        dayDefault:
+          "border border-sky-400/20 bg-sky-950/40 hover:bg-sky-900/50 text-white backdrop-blur-md rounded-2xl",
+        daySelected:
+          "bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-black shadow-[0_0_22px_rgba(14,165,233,0.6)] scale-105 z-10 ring-2 ring-sky-300/50 rounded-2xl",
+        dayInRange:
+          "bg-sky-500/20 text-sky-300 font-extrabold border border-sky-400/40 rounded-2xl",
+        dayOccupied:
+          "bg-rose-500/90 text-white font-black border border-rose-400/60 rounded-2xl cursor-not-allowed",
+        dayPast:
+          "bg-sky-950/30 text-sky-700/40 line-through opacity-35 border border-transparent rounded-2xl cursor-not-allowed",
+        legendDotSelected: "bg-sky-500 shadow-[0_0_8px_#0ea5e9]",
+        guestButtonActive:
+          "bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-black shadow-lg scale-105 rounded-2xl",
+        guestButtonInactive:
+          "bg-sky-950/50 hover:bg-sky-900/50 text-white/80 border border-sky-400/20 rounded-2xl",
+        infoCard: "bg-sky-950/40 border border-sky-400/20 text-white rounded-xl backdrop-blur-md",
+        navButton: "hover:bg-sky-400/15 text-sky-400 rounded-full",
+        ctaButton: t.buttonPrimary,
+      };
+
+    case "forest":
+      return {
+        containerClass: isModal
+          ? "bg-[#081711] text-white border border-emerald-400/30 shadow-2xl rounded-[32px]"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-gradient-to-br from-emerald-900/70 to-zinc-900/90 border border-emerald-400/40 rounded-2xl shadow-xl text-white",
+        dayDefault:
+          "border border-emerald-400/20 bg-emerald-950/40 hover:bg-emerald-900/50 text-white backdrop-blur-md rounded-2xl",
+        daySelected:
+          "bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black shadow-[0_0_22px_rgba(16,185,129,0.6)] scale-105 z-10 ring-2 ring-emerald-300/50 rounded-2xl",
+        dayInRange:
+          "bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-400/40 rounded-2xl",
+        dayOccupied:
+          "bg-rose-500/90 text-white font-black border border-rose-400/60 rounded-2xl cursor-not-allowed",
+        dayPast:
+          "bg-emerald-950/30 text-emerald-700/40 line-through opacity-35 border border-transparent rounded-2xl cursor-not-allowed",
+        legendDotSelected: "bg-emerald-500 shadow-[0_0_8px_#10b981]",
+        guestButtonActive:
+          "bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black shadow-lg scale-105 rounded-2xl",
+        guestButtonInactive:
+          "bg-emerald-950/50 hover:bg-emerald-900/50 text-white/80 border border-emerald-400/20 rounded-2xl",
+        infoCard: "bg-emerald-950/40 border border-emerald-400/20 text-white rounded-xl backdrop-blur-md",
+        navButton: "hover:bg-emerald-400/15 text-emerald-400 rounded-full",
+        ctaButton: t.buttonPrimary,
+      };
+
+    case "luxury":
+      return {
+        containerClass: isModal
+          ? "bg-[#121212] text-[#f5f5f4] border border-[#d4af37]/40 shadow-2xl rounded-[32px]"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-gradient-to-br from-zinc-900/90 to-black border border-[#d4af37]/45 rounded-2xl shadow-xl text-[#f5f5f4]",
+        dayDefault:
+          "border border-[#d4af37]/25 bg-zinc-900/60 hover:bg-zinc-800 text-[#f5f5f4] rounded-2xl",
+        daySelected:
+          "bg-gradient-to-r from-[#d4af37] to-[#c59e2b] text-zinc-950 font-black shadow-[0_0_22px_rgba(212,175,55,0.5)] scale-105 z-10 ring-2 ring-[#d4af37]/50 rounded-2xl",
+        dayInRange:
+          "bg-[#d4af37]/20 text-[#e5c76b] font-bold border border-[#d4af37]/40 rounded-2xl",
+        dayOccupied:
+          "bg-red-950/80 border border-red-500/40 text-red-300 font-extrabold rounded-2xl cursor-not-allowed",
+        dayPast:
+          "bg-zinc-950 text-zinc-700 line-through opacity-35 border border-transparent rounded-2xl cursor-not-allowed",
+        legendDotSelected: "bg-[#d4af37] shadow-[0_0_8px_#d4af37]",
+        guestButtonActive:
+          "bg-gradient-to-r from-[#d4af37] to-[#c59e2b] text-zinc-950 font-black shadow-lg scale-105 rounded-2xl",
+        guestButtonInactive:
+          "bg-zinc-900/60 hover:bg-zinc-800 text-[#f5f5f4]/70 border border-[#d4af37]/25 rounded-2xl",
+        infoCard: "bg-zinc-900/70 border border-[#d4af37]/25 text-[#f5f5f4] rounded-xl",
+        navButton: "hover:bg-[#d4af37]/15 text-[#d4af37] rounded-full",
+        ctaButton: t.buttonPrimary,
+      };
+
+    default: // modern-app
+      return {
+        containerClass: isModal
+          ? "bg-white text-slate-900 shadow-2xl border border-slate-200 rounded-[32px]"
+          : t.cardClass,
+        summaryCardClass:
+          "bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 shadow-md text-slate-900",
+        dayDefault:
+          "border border-slate-200/60 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-slate-800 dark:text-slate-100 rounded-2xl",
+        daySelected:
+          "bg-blue-600 text-white font-black shadow-lg shadow-blue-500/30 scale-105 z-10 ring-2 ring-white/60 rounded-2xl",
+        dayInRange:
+          "bg-blue-500/20 text-blue-600 dark:text-blue-400 font-extrabold border border-blue-500/30 rounded-2xl",
+        dayOccupied:
+          "bg-rose-500 text-white font-extrabold shadow-sm border border-rose-600 rounded-2xl cursor-not-allowed",
+        dayPast:
+          "bg-slate-100/50 dark:bg-slate-900/30 text-slate-300 dark:text-slate-600 line-through cursor-not-allowed opacity-35 border border-transparent rounded-2xl",
+        legendDotSelected: "bg-blue-600 shadow-[0_0_8px_#2563eb]",
+        guestButtonActive:
+          "bg-blue-600 text-white font-black shadow-lg scale-105 rounded-2xl",
+        guestButtonInactive:
+          "bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/15 opacity-80 rounded-2xl",
+        infoCard: "bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl",
+        navButton: "hover:bg-black/5 dark:hover:bg-white/10 rounded-full",
+        ctaButton: t.buttonPrimary,
+      };
+  }
+};
+

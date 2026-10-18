@@ -55,7 +55,11 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
-  const theme = getTheme(property.tema);
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const urlTheme = searchParams?.get("theme") || searchParams?.get("tema");
+  const effectiveThemeId = urlTheme || property.tema;
+  const theme = getTheme(effectiveThemeId);
+  const effectiveProperty = urlTheme ? { ...property, tema: urlTheme } : property;
   const images = property.imagens || [];
   const heroImage =
     images[activeHeroIndex] ||
@@ -341,7 +345,7 @@ export default function Home() {
               </span>
             </div>
 
-            <AvailabilityCalendar property={property} theme={theme} />
+            <AvailabilityCalendar property={effectiveProperty} theme={theme} />
           </section>
         )}
 
@@ -435,7 +439,7 @@ export default function Home() {
         </section>
 
         {/* Rodapé com Link do Admin */}
-        <footer className="pt-12 text-center space-y-3 opacity-70 text-xs">
+        <footer className="pt-12 pb-28 sm:pb-8 text-center space-y-3 opacity-70 text-xs">
           <p>© 2026 {property.titulo} · Caldas Novas, GO.</p>
         </footer>
       </div>
@@ -443,9 +447,9 @@ export default function Home() {
       {/* Modal / Bottom Sheet do Calendário (se aberto via clique direto) */}
       {calendarModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
-          <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-t-[36px] sm:rounded-[36px] bg-white animate-in slide-in-from-bottom-5">
+          <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-t-[36px] sm:rounded-[36px] bg-transparent animate-in slide-in-from-bottom-5">
             <AvailabilityCalendar
-              property={property}
+              property={effectiveProperty}
               theme={theme}
               isModal={true}
               onClose={() => setCalendarModalOpen(false)}
