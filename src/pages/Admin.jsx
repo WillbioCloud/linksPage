@@ -16,7 +16,6 @@ import {
   HelpCircle,
   Plus,
   ArrowUp,
-  Settings,
   CalendarCheck,
   Users,
   MapPin,
@@ -30,7 +29,6 @@ import {
 import {
   uploadImageToCloudinary,
   getCloudinaryConfig,
-  saveCloudinaryConfig,
 } from "@/lib/cloudinary";
 import {
   isAdminAuthenticated,
@@ -58,8 +56,6 @@ export default function Admin() {
   const [uploadCount, setUploadCount] = useState({ current: 0, total: 0 });
   const fileInputRef = useRef(null);
 
-  const [showSettings, setShowSettings] = useState(false);
-  const [cloudinarySettings, setCloudinarySettings] = useState(getCloudinaryConfig);
   const [manualImageUrl, setManualImageUrl] = useState("");
 
   useEffect(() => {
@@ -106,10 +102,8 @@ export default function Admin() {
       toast({
         variant: "destructive",
         title: "Cloudinary Não Configurado",
-        description:
-          "Informe o Cloud Name e o Upload Preset nas configurações abaixo antes de enviar fotos.",
+        description: "Verifique o Cloud Name e Upload Preset.",
       });
-      setShowSettings(true);
       return;
     }
 
@@ -203,18 +197,6 @@ export default function Admin() {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleSaveCloudinarySettings = (e) => {
-    e.preventDefault();
-    saveCloudinaryConfig(
-      cloudinarySettings.cloudName.trim(),
-      cloudinarySettings.uploadPreset.trim()
-    );
-    toast({
-      title: "Configurações Atualizadas",
-      description: "Dados do Cloudinary salvos no aplicativo.",
-    });
   };
 
   // ==========================================
@@ -326,92 +308,26 @@ export default function Admin() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* Status Cloudinary / Firebase */}
-        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        {/* Status Conexão */}
+        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             {isFirebaseConfigured() ? (
               <>
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span className="text-slate-300">
-                  Firebase Firestore: <strong className="text-emerald-400">Conectado na nuvem</strong>
+                  Painel Conectado: <strong className="text-emerald-400">Pronto para Publicar</strong>
                 </span>
               </>
             ) : (
               <>
                 <AlertCircle className="w-4 h-4 text-amber-400" />
                 <span className="text-slate-300">
-                  Firebase: <strong className="text-amber-400">Modo Local Ativo</strong> (pronto para sincronizar)
+                  Armazenamento: <strong className="text-amber-400">Modo Local</strong>
                 </span>
               </>
             )}
           </div>
-
-          <button
-            type="button"
-            onClick={() => setShowSettings(!showSettings)}
-            className="text-sky-400 hover:text-sky-300 inline-flex items-center gap-1 font-semibold"
-          >
-            <Settings className="w-3.5 h-3.5" />
-            <span>{showSettings ? "Ocultar Chaves" : "Configurar Cloudinary / Firebase"}</span>
-          </button>
         </div>
-
-        {/* Gaveta de Configurações Técnicas */}
-        {showSettings && (
-          <div className="p-5 rounded-2xl bg-slate-900/90 border border-sky-500/30 space-y-4 animate-in fade-in">
-            <div className="space-y-1">
-              <h3 className="text-sm font-bold text-sky-400 flex items-center gap-1.5">
-                <Settings className="w-4 h-4" /> Configurações de Upload Direto (Cloudinary)
-              </h3>
-              <p className="text-xs text-slate-400">
-                Preencha uma vez para permitir o envio de fotos direto da galeria do celular.
-              </p>
-            </div>
-
-            <form onSubmit={handleSaveCloudinarySettings} className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase">
-                    Cloud Name (Nome da Conta)
-                  </label>
-                  <input
-                    type="text"
-                    value={cloudinarySettings.cloudName}
-                    onChange={(e) =>
-                      setCloudinarySettings((prev) => ({ ...prev, cloudName: e.target.value }))
-                    }
-                    placeholder="Ex: dxyz123ab"
-                    className="w-full h-10 bg-slate-950 border border-slate-700 rounded-lg px-3 text-xs focus:outline-none focus:border-sky-400"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase">
-                    Unsigned Upload Preset
-                  </label>
-                  <input
-                    type="text"
-                    value={cloudinarySettings.uploadPreset}
-                    onChange={(e) =>
-                      setCloudinarySettings((prev) => ({ ...prev, uploadPreset: e.target.value }))
-                    }
-                    placeholder="Ex: home_paraiso_preset"
-                    className="w-full h-10 bg-slate-950 border border-slate-700 rounded-lg px-3 text-xs focus:outline-none focus:border-sky-400"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-xs font-bold transition-colors"
-                >
-                  Salvar Chaves do Cloudinary
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
 
         {/* ======================================================== */}
         {/* 1. GESTOR DE CALENDÁRIO & DISPONIBILIDADE (AIRBNB, BOOKING, DIRETO) */}

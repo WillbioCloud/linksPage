@@ -4,35 +4,11 @@
  * sem depender de nenhum backend ou servidor intermediário.
  */
 
-const CLOUDINARY_SETTINGS_KEY = "home_paraiso_cloudinary_settings";
-
 export const getCloudinaryConfig = () => {
-  let stored = {};
-  try {
-    const raw = localStorage.getItem(CLOUDINARY_SETTINGS_KEY);
-    if (raw) stored = JSON.parse(raw);
-  } catch (e) {
-    console.error(e);
-  }
-
-  const cloudName =
-    import.meta.env.VITE_CLOUDINARY_CLOUD_NAME ||
-    stored.cloudName ||
-    "";
-
-  const uploadPreset =
-    import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET ||
-    stored.uploadPreset ||
-    "";
-
-  return { cloudName, uploadPreset };
-};
-
-export const saveCloudinaryConfig = (cloudName, uploadPreset) => {
-  localStorage.setItem(
-    CLOUDINARY_SETTINGS_KEY,
-    JSON.stringify({ cloudName, uploadPreset })
-  );
+  return {
+    cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "d0gckvnx",
+    uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "ml_default",
+  };
 };
 
 /**
