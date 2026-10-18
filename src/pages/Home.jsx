@@ -26,6 +26,7 @@ import { getTheme } from "@/lib/themeStyles";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 import Image from "@/components/ui/image";
+import Logo from "@/components/Logo";
 
 export default function Home() {
   const [property, setProperty] = useState(DEFAULT_PROPERTY);
@@ -123,8 +124,8 @@ export default function Home() {
       <div className={theme.containerClass}>
         {/* Top Header Simplificado */}
         <header className="flex items-center justify-between pb-5 pt-2">
-          <div className="flex items-center gap-2">
-            <span className={`w-3 h-3 rounded-full ${theme.accentBg} animate-pulse`} />
+          <div className="flex items-center gap-2.5">
+            <Logo className={`w-7 h-7 sm:w-8 sm:h-8 ${theme.accentText} shrink-0 transition-transform duration-300 hover:scale-110`} />
             <span className="font-extrabold text-base sm:text-lg tracking-tight">
               {property.titulo}
             </span>
