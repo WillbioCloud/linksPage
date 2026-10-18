@@ -17,7 +17,9 @@ import {
   Plus,
   ArrowUp,
   Settings,
-  Flame,
+  CalendarCheck,
+  Users,
+  MapPin,
 } from "lucide-react";
 import {
   subscribeToProperty,
@@ -34,37 +36,32 @@ import {
   isAdminAuthenticated,
   loginAdmin,
   logoutAdmin,
-  getAdminPassword,
 } from "@/lib/adminAuth";
 import { THEMES_CONFIG } from "@/lib/themeStyles";
+import AdminCalendar from "@/components/AdminCalendar";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Admin() {
   const { toast } = useToast();
 
-  // Estado de Autenticação
   const [isAuthenticated, setIsAuthenticated] = useState(isAdminAuthenticated);
   const [passwordInput, setPasswordInput] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState("");
 
-  // Estado dos Dados da Propriedade
   const [formData, setFormData] = useState(DEFAULT_PROPERTY);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Estado de Upload Cloudinary
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadCount, setUploadCount] = useState({ current: 0, total: 0 });
   const fileInputRef = useRef(null);
 
-  // Configurações do Cloudinary e Firebase
   const [showSettings, setShowSettings] = useState(false);
   const [cloudinarySettings, setCloudinarySettings] = useState(getCloudinaryConfig);
   const [manualImageUrl, setManualImageUrl] = useState("");
 
-  // Carrega os dados da propriedade ao montar
   useEffect(() => {
     const unsubscribe = subscribeToProperty((data) => {
       setFormData(data);
@@ -72,7 +69,6 @@ export default function Admin() {
     return () => unsubscribe();
   }, []);
 
-  // Login
   const handleLogin = (e) => {
     e.preventDefault();
     if (loginAdmin(passwordInput)) {
@@ -87,7 +83,6 @@ export default function Admin() {
     }
   };
 
-  // Logout
   const handleLogout = () => {
     logoutAdmin();
     setIsAuthenticated(false);
@@ -97,18 +92,15 @@ export default function Admin() {
     });
   };
 
-  // Atualização dos campos do formulário
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setHasChanges(true);
   };
 
-  // Upload múltiplo para o Cloudinary
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    // Verifica se as configurações do Cloudinary estão preenchidas
     const { cloudName, uploadPreset } = getCloudinaryConfig();
     if (!cloudName || !uploadPreset) {
       toast({
@@ -135,7 +127,6 @@ export default function Admin() {
         uploadedUrls.push(url);
       }
 
-      // Adiciona as novas fotos no início ou fim do array
       const updatedImages = [...formData.imagens, ...uploadedUrls];
       handleChange("imagens", updatedImages);
 
@@ -157,7 +148,6 @@ export default function Admin() {
     }
   };
 
-  // Remover foto da lista
   const handleRemoveImage = (indexToRemove) => {
     const updated = formData.imagens.filter((_, idx) => idx !== indexToRemove);
     handleChange("imagens", updated);
@@ -167,7 +157,6 @@ export default function Admin() {
     });
   };
 
-  // Definir foto como capa (mover para primeira posição)
   const handleMakeCover = (index) => {
     if (index === 0) return;
     const target = formData.imagens[index];
@@ -179,7 +168,6 @@ export default function Admin() {
     });
   };
 
-  // Adicionar URL manual de foto
   const handleAddManualImage = () => {
     if (!manualImageUrl || !manualImageUrl.trim().startsWith("http")) {
       toast({
@@ -197,7 +185,6 @@ export default function Admin() {
     });
   };
 
-  // Salvar alterações no Firebase Firestore
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -218,7 +205,6 @@ export default function Admin() {
     }
   };
 
-  // Salvar configurações do Cloudinary
   const handleSaveCloudinarySettings = (e) => {
     e.preventDefault();
     saveCloudinaryConfig(
@@ -232,7 +218,7 @@ export default function Admin() {
   };
 
   // ==========================================
-  // TELA DE LOGIN (MODAL / FORMULÁRIO DE SENHA)
+  // TELA DE LOGIN
   // ==========================================
   if (!isAuthenticated) {
     return (
@@ -244,7 +230,7 @@ export default function Admin() {
             </div>
             <h1 className="text-2xl font-black tracking-tight">Painel da Proprietária</h1>
             <p className="text-sm text-slate-400">
-              Digite a senha de acesso para gerenciar as informações da <strong>Home Paraíso</strong>.
+              Digite a senha de acesso para gerenciar as informações e disponibilidades da <strong>Home Paraíso</strong>.
             </p>
           </div>
 
@@ -292,7 +278,7 @@ export default function Admin() {
               to="/"
               className="text-xs text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1"
             >
-              ← Voltar para o Site Principal
+              ← Voltar para a Landing Page
             </Link>
           </div>
         </div>
@@ -301,18 +287,18 @@ export default function Admin() {
   }
 
   // ==========================================
-  // TELA PRINCIPAL DO PAINEL DA PROPRIETÁRIA
+  // PAINEL COMPLETO DA PROPRIETÁRIA
   // ==========================================
   return (
-    <div className="min-h-screen bg-slate-950 text-white pb-32">
-      {/* Header Fixo do Painel */}
+    <div className="min-h-screen bg-slate-950 text-white pb-36">
+      {/* Header Fixo */}
       <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-4 py-3.5">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <div>
               <h1 className="text-base font-black tracking-tight leading-none">Home Paraíso Admin</h1>
-              <span className="text-[10px] text-slate-400 font-medium">Painel da Proprietária</span>
+              <span className="text-[10px] text-slate-400 font-medium">Gestão & Calendário</span>
             </div>
           </div>
 
@@ -339,9 +325,8 @@ export default function Admin() {
         </div>
       </header>
 
-      {/* Conteúdo do Formulário */}
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* Status de Conexão */}
+        {/* Status Cloudinary / Firebase */}
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             {isFirebaseConfigured() ? (
@@ -355,7 +340,7 @@ export default function Admin() {
               <>
                 <AlertCircle className="w-4 h-4 text-amber-400" />
                 <span className="text-slate-300">
-                  Firebase: <strong className="text-amber-400">Modo Local Ativo</strong> (pronto para receber chaves)
+                  Firebase: <strong className="text-amber-400">Modo Local Ativo</strong> (pronto para sincronizar)
                 </span>
               </>
             )}
@@ -371,7 +356,7 @@ export default function Admin() {
           </button>
         </div>
 
-        {/* Gaveta de Configurações Técnicas (Cloudinary / Firebase) */}
+        {/* Gaveta de Configurações Técnicas */}
         {showSettings && (
           <div className="p-5 rounded-2xl bg-slate-900/90 border border-sky-500/30 space-y-4 animate-in fade-in">
             <div className="space-y-1">
@@ -379,7 +364,7 @@ export default function Admin() {
                 <Settings className="w-4 h-4" /> Configurações de Upload Direto (Cloudinary)
               </h3>
               <p className="text-xs text-slate-400">
-                Preencha uma vez para permitir o upload direto de fotos da galeria do celular para a nuvem sem custos.
+                Preencha uma vez para permitir o envio de fotos direto da galeria do celular.
               </p>
             </div>
 
@@ -428,11 +413,39 @@ export default function Admin() {
           </div>
         )}
 
-        {/* 1. DADOS BÁSICOS */}
+        {/* ======================================================== */}
+        {/* 1. GESTOR DE CALENDÁRIO & DISPONIBILIDADE (AIRBNB, BOOKING, DIRETO) */}
+        {/* ======================================================== */}
+        <section className="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+          <div className="space-y-1">
+            <h2 className="text-base font-black tracking-tight flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-xs font-bold text-white">
+                1
+              </span>
+              Gestão de Disponibilidade & Calendário
+            </h2>
+            <p className="text-xs text-slate-400">
+              Marque no calendário os dias ocupados no <strong>Airbnb</strong>, no <strong>Booking</strong> ou <strong>Direto</strong> com você para que seus clientes vejam as datas corretas na página.
+            </p>
+          </div>
+
+          <AdminCalendar
+            datasOcupadas={formData.datas_ocupadas || {}}
+            onChange={(updatedDates) => handleChange("datas_ocupadas", updatedDates)}
+            mostrarCalendario={formData.mostrar_calendario !== false}
+            onToggleMostrarCalendario={(val) => handleChange("mostrar_calendario", val)}
+          />
+        </section>
+
+        {/* ======================================================== */}
+        {/* 2. DADOS PRINCIPAIS DO IMÓVEL                           */}
+        {/* ======================================================== */}
         <section className="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
           <h2 className="text-base font-black tracking-tight flex items-center gap-2">
-            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-sky-500 text-xs font-bold">1</span>
-            Informações Principais
+            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-sky-500 text-xs font-bold">
+              2
+            </span>
+            Informações do Imóvel & Contato
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -451,13 +464,49 @@ export default function Admin() {
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                Cidade & Estado
+              </label>
+              <input
+                type="text"
+                value={formData.cidade || "Caldas Novas · GO"}
+                onChange={(e) => handleChange("cidade", e.target.value)}
+                placeholder="Ex: Caldas Novas · GO"
+                className="w-full h-12 bg-slate-950 border border-slate-700 rounded-xl px-4 text-sm font-semibold focus:outline-none focus:border-sky-400 transition-colors"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                 Valor da Diária
               </label>
               <input
                 type="text"
                 value={formData.valor_diaria}
-                onChange={(e) => handleChange("valor_diaria", e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const num = parseInt(val.replace(/\D/g, ""), 10) || 0;
+                  setFormData((prev) => ({
+                    ...prev,
+                    valor_diaria: val,
+                    valor_diaria_num: num > 0 ? num : prev.valor_diaria_num,
+                  }));
+                  setHasChanges(true);
+                }}
                 placeholder="Ex: R$ 650"
+                className="w-full h-12 bg-slate-950 border border-slate-700 rounded-xl px-4 text-sm font-semibold focus:outline-none focus:border-sky-400 transition-colors"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                Capacidade Máxima (Hóspedes)
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="30"
+                value={formData.max_hospedes || 8}
+                onChange={(e) => handleChange("max_hospedes", parseInt(e.target.value, 10) || 8)}
                 className="w-full h-12 bg-slate-950 border border-slate-700 rounded-xl px-4 text-sm font-semibold focus:outline-none focus:border-sky-400 transition-colors"
               />
             </div>
@@ -465,7 +514,7 @@ export default function Admin() {
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-              Link de Contato / WhatsApp
+              Link do WhatsApp
             </label>
             <input
               type="text"
@@ -475,24 +524,28 @@ export default function Admin() {
               className="w-full h-12 bg-slate-950 border border-slate-700 rounded-xl px-4 text-sm focus:outline-none focus:border-sky-400 transition-colors"
             />
             <p className="text-[11px] text-slate-500">
-              Cole aqui o link direto do seu WhatsApp ou gere com mensagem personalizada.
+              O sistema calcula automaticamente o valor total e o período de noites ao gerar o link do WhatsApp para o cliente.
             </p>
           </div>
         </section>
 
-        {/* 2. ESCOLHA DE TEMA DINÂMICO */}
+        {/* ======================================================== */}
+        {/* 3. SELETOR DE TEMAS (TODOS OS 10 TEMAS)                 */}
+        {/* ======================================================== */}
         <section className="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
           <div className="space-y-1">
             <h2 className="text-base font-black tracking-tight flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-sky-500 text-xs font-bold">2</span>
-              Tema Visual da Landing Page
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-sky-500 text-xs font-bold">
+                3
+              </span>
+              Tema Visual da Landing Page ({Object.keys(THEMES_CONFIG).length} Opções)
             </h2>
             <p className="text-xs text-slate-400">
-              Escolha a atmosfera visual da página. O estilo se adapta instantaneamente para todos os visitantes.
+              Escolha entre o novo modelo <strong>Modern App Resort</strong> (da imagem) ou os temas clássicos de alta conversão.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
             {Object.values(THEMES_CONFIG).map((thm) => {
               const isSelected = formData.tema === thm.id;
               return (
@@ -500,35 +553,41 @@ export default function Admin() {
                   key={thm.id}
                   type="button"
                   onClick={() => handleChange("tema", thm.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden ${
+                  className={`p-3 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
                     isSelected
-                      ? "border-sky-400 bg-sky-500/10 ring-2 ring-sky-400/30"
+                      ? "border-sky-400 bg-sky-500/10 ring-2 ring-sky-400/40 shadow-lg scale-102"
                       : "border-slate-800 bg-slate-950/60 hover:border-slate-700"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span
-                      className="w-5 h-5 rounded-full border border-white/20 shadow-sm"
+                      className="w-4 h-4 rounded-full border border-white/20 shadow-sm shrink-0"
                       style={{ backgroundColor: thm.swatch }}
                     />
                     {isSelected && (
-                      <span className="text-[10px] font-black uppercase tracking-wider text-sky-400 bg-sky-400/15 px-2 py-0.5 rounded-full">
+                      <span className="text-[9px] font-black uppercase text-sky-400 bg-sky-400/15 px-1.5 py-0.5 rounded-full">
                         Ativo
                       </span>
                     )}
                   </div>
-                  <h3 className="font-bold text-sm tracking-tight">{thm.name.split(" ")[0]}</h3>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-tight">{thm.badge}</p>
+                  <div>
+                    <h3 className="font-bold text-xs tracking-tight truncate">{thm.name.split(" ")[0]}</h3>
+                    <p className="text-[10px] text-slate-400 mt-0.5 truncate">{thm.badge}</p>
+                  </div>
                 </button>
               );
             })}
           </div>
         </section>
 
-        {/* 3. DESCRIÇÃO DETALHADA */}
+        {/* ======================================================== */}
+        {/* 4. DESCRIÇÃO                                            */}
+        {/* ======================================================== */}
         <section className="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
           <h2 className="text-base font-black tracking-tight flex items-center gap-2">
-            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-sky-500 text-xs font-bold">3</span>
+            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-sky-500 text-xs font-bold">
+              4
+            </span>
             Descrição da Propriedade
           </h2>
 
@@ -540,21 +599,21 @@ export default function Admin() {
               placeholder="Descreva a casa, quartos, piscina, regras e diferenciais..."
               className="w-full bg-slate-950 border border-slate-700 rounded-xl p-4 text-sm focus:outline-none focus:border-sky-400 transition-colors leading-relaxed"
             />
-            <p className="text-[11px] text-slate-500">
-              Dica: Mencione que a piscina é aquecida, a quantidade de quartos e a proximidade com os parques de Caldas Novas.
-            </p>
           </div>
         </section>
 
-        {/* 4. GALERIA DE FOTOS (CLOUDINARY) */}
+        {/* ======================================================== */}
+        {/* 5. FOTOS & CLOUDINARY                                   */}
+        {/* ======================================================== */}
         <section className="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h2 className="text-base font-black tracking-tight flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-sky-500 text-xs font-bold">4</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-sky-500 text-xs font-bold">
+                5
+              </span>
               Fotos da Propriedade ({formData.imagens.length})
             </h2>
 
-            {/* Input File Oculto acionado pelo botão bonito */}
             <input
               type="file"
               ref={fileInputRef}
@@ -575,7 +634,6 @@ export default function Admin() {
             </button>
           </div>
 
-          {/* Barra de Progresso de Upload */}
           {isUploading && (
             <div className="p-4 rounded-xl bg-sky-500/10 border border-sky-500/30 space-y-2 animate-in fade-in">
               <div className="flex items-center justify-between text-xs font-bold text-sky-400">
@@ -591,7 +649,6 @@ export default function Admin() {
             </div>
           )}
 
-          {/* Grid de Imagens Atuais */}
           {formData.imagens.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-2">
               {formData.imagens.map((imgUrl, index) => (
@@ -605,14 +662,12 @@ export default function Admin() {
                     className="w-full h-full object-cover"
                   />
 
-                  {/* Badge da Foto de Capa */}
                   {index === 0 && (
                     <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow">
                       Capa
                     </span>
                   )}
 
-                  {/* Ações ao passar o mouse ou tocar */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
                     <div className="flex justify-end">
                       <button
@@ -642,13 +697,9 @@ export default function Admin() {
             <div className="p-8 text-center rounded-2xl border border-dashed border-slate-800 space-y-2">
               <ImageIcon className="w-8 h-8 text-slate-600 mx-auto" />
               <p className="text-xs text-slate-400">Nenhuma foto adicionada ainda.</p>
-              <p className="text-[11px] text-slate-500">
-                Toque no botão acima para escolher as fotos da galeria do seu celular.
-              </p>
             </div>
           )}
 
-          {/* Inserir URL manual de foto */}
           <div className="pt-2 flex gap-2">
             <input
               type="url"

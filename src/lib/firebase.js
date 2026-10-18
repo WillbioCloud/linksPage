@@ -7,24 +7,40 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
-// Configuração padrão da propriedade caso o Firebase ainda não tenha dados
+// Configuração padrão completa da propriedade com disponibilidade e temas
 export const DEFAULT_PROPERTY = {
   titulo: "Home Paraíso",
+  cidade: "Caldas Novas · GO",
   descricao:
     "Viva momentos inesquecíveis na Home Paraíso em Caldas Novas. Um refúgio exclusivo de alto padrão com piscina aquecida privativa, cascata, área gourmet completa com churrasqueira e suítes climatizadas com todo o requinte e privacidade que você e sua família merecem.",
   valor_diaria: "R$ 650",
-  link_whatsapp:
-    "https://wa.me/5564999999999?text=Ol%C3%A1!%20Gostaria%20de%20consultar%20disponibilidade%20para%20a%20Home%20Para%C3%ADso.",
-  tema: "ocean", // 'ocean' | 'forest' | 'luxury'
+  valor_diaria_num: 650,
+  link_whatsapp: "https://wa.me/5564999999999",
+  tema: "modern-app", // 'modern-app' | 'vidro' | 'neumorfismo' | 'obsidiana' | 'brutalista' | 'salvia' | 'retro' | 'ocean' | 'forest' | 'luxury'
+  max_hospedes: 10,
+  mostrar_calendario: true,
+  // Mapa de datas ocupadas: { "YYYY-MM-DD": { origem: 'airbnb' | 'booking' | 'direto' | 'bloqueado', nota?: string } }
+  datas_ocupadas: {
+    "2026-05-01": { origem: "airbnb", nota: "Feriado do Trabalho" },
+    "2026-05-02": { origem: "airbnb", nota: "Feriado do Trabalho" },
+    "2026-05-03": { origem: "airbnb", nota: "Feriado do Trabalho" },
+    "2026-05-15": { origem: "booking", nota: "Hóspedes Booking" },
+    "2026-05-16": { origem: "booking", nota: "Hóspedes Booking" },
+    "2026-05-22": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
+    "2026-05-23": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
+    "2026-05-24": { origem: "direto", nota: "Reserva WhatsApp Família Silva" },
+  },
   imagens: [
     "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
     "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1200&q=80",
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
     "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80",
   ],
 };
 
-const LOCAL_STORAGE_KEY = "home_paraiso_property_data";
+const LOCAL_STORAGE_KEY = "home_paraiso_property_data_v2";
 
 // Credenciais do Firebase vindas das variáveis de ambiente (Vite)
 const firebaseConfig = {
@@ -36,7 +52,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Verifica se as credenciais mínimas do Firebase foram fornecidas
 export const isFirebaseConfigured = () => {
   return Boolean(
     firebaseConfig.apiKey &&
@@ -56,9 +71,6 @@ if (isFirebaseConfigured()) {
   }
 }
 
-/**
- * Lê do LocalStorage como fallback imediato
- */
 export const getLocalProperty = () => {
   try {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -71,9 +83,6 @@ export const getLocalProperty = () => {
   return DEFAULT_PROPERTY;
 };
 
-/**
- * Salva no LocalStorage como backup resiliente
- */
 export const saveLocalProperty = (data) => {
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
@@ -82,12 +91,7 @@ export const saveLocalProperty = (data) => {
   }
 };
 
-/**
- * Escuta atualizações em tempo real do documento 'propriedades/home-paraiso' no Firestore.
- * Se o Firebase não estiver configurado, usa fallback com LocalStorage.
- */
 export const subscribeToProperty = (onData, onError) => {
-  // Retorna os dados locais imediatamente para não travar a UI
   const initial = getLocalProperty();
   onData(initial);
 
@@ -106,7 +110,6 @@ export const subscribeToProperty = (onData, onError) => {
           saveLocalProperty(merged);
           onData(merged);
         } else {
-          // Se o documento ainda não existir na nuvem, inicializa com o padrão
           savePropertyToFirebase(initial).catch(() => {});
         }
       },
@@ -124,10 +127,6 @@ export const subscribeToProperty = (onData, onError) => {
   }
 };
 
-/**
- * Salva os dados da propriedade no Firestore (propriedades/home-paraiso)
- * e também atualiza o cache local.
- */
 export const savePropertyToFirebase = async (propertyData) => {
   saveLocalProperty(propertyData);
 

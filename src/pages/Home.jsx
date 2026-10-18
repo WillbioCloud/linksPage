@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   MessageCircle,
@@ -16,18 +16,26 @@ import {
   CheckCircle2,
   ChevronDown,
   Lock,
+  ChevronRight,
+  Maximize2,
+  Users,
+  Calendar,
 } from "lucide-react";
 import { subscribeToProperty, DEFAULT_PROPERTY } from "@/lib/firebase";
 import { getTheme } from "@/lib/themeStyles";
 import PhotoCarousel from "@/components/PhotoCarousel";
+import AvailabilityCalendar from "@/components/AvailabilityCalendar";
+import Image from "@/components/ui/image";
 
 export default function Home() {
   const [property, setProperty] = useState(DEFAULT_PROPERTY);
   const [loading, setLoading] = useState(true);
+  const [showFullDesc, setShowFullDesc] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
+  const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+  const calendarSectionRef = useRef(null);
 
   useEffect(() => {
-    // Escuta em tempo real do Firestore
     const unsubscribe = subscribeToProperty(
       (data) => {
         setProperty(data);
@@ -43,6 +51,9 @@ export default function Home() {
   }, []);
 
   const theme = getTheme(property.tema);
+  const images = property.imagens || [];
+  const heroImage = images[0] || "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80";
+  const thumbnails = images.slice(1, 5);
 
   const amenities = [
     {
@@ -96,83 +107,177 @@ export default function Home() {
     },
   ];
 
+  const scrollToCalendar = () => {
+    if (calendarSectionRef.current) {
+      calendarSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    } else {
+      setCalendarModalOpen(true);
+    }
+  };
+
   return (
-    <div className={`min-h-screen selection:bg-white selection:text-black ${theme.bgClass} pb-24 md:pb-12 transition-colors duration-500`}>
-      {/* Navbar Superior Fixa */}
-      <header className="sticky top-0 z-40 w-full backdrop-blur-xl border-b border-white/10 bg-black/40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div
+      className={`min-h-screen selection:bg-blue-500 selection:text-white ${theme.bgClass} pb-28 sm:pb-16 transition-colors duration-500`}
+    >
+      {/* Container Principal Centralizado (com a largura e elegância do App Resort da imagem) */}
+      <div className={theme.containerClass}>
+        {/* Top Header Simplificado */}
+        <header className="flex items-center justify-between pb-5 pt-2">
           <div className="flex items-center gap-2">
             <span className={`w-3 h-3 rounded-full ${theme.accentBg} animate-pulse`} />
-            <span className="font-extrabold text-lg sm:text-xl tracking-tight">
+            <span className="font-extrabold text-base sm:text-lg tracking-tight">
               {property.titulo}
             </span>
-            <span className={`hidden sm:inline-flex text-[11px] font-semibold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${theme.pillClass}`}>
-              {theme.badge}
-            </span>
           </div>
 
-          <a
-            href={property.link_whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-transform hover:scale-105 active:scale-95 ${theme.buttonPrimary}`}
+          <span
+            className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full ${theme.pillClass}`}
           >
-            <MessageCircle className="w-4 h-4 fill-current" />
-            <span>Consultar Datas</span>
-          </a>
-        </div>
-      </header>
+            {theme.badge}
+          </span>
+        </header>
 
-      {/* Conteúdo Principal */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 space-y-12 sm:space-y-16">
-        {/* Hero Section */}
-        <section className="text-center sm:text-left space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md bg-white/10 border border-white/15">
-            <MapPin className={`w-3.5 h-3.5 ${theme.accentText}`} />
-            <span>Caldas Novas · Goiás</span>
-            <span className="opacity-40">|</span>
-            <div className="flex items-center gap-1 text-amber-400">
-              <Star className="w-3.5 h-3.5 fill-amber-400" />
-              <span className="text-white font-bold">4.98</span>
-              <span className="text-white/60 text-[11px]">(+80 hóspedes)</span>
+        {/* ======================================================== */}
+        {/* CARD PRINCIPAL HERO (INSPIRADO DIRETAMENTE NA IMAGEM)     */}
+        {/* ======================================================== */}
+        <section className={`relative overflow-hidden ${theme.heroCardClass}`}>
+          {/* Imagem de Capa Grande */}
+          <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full rounded-[30px] overflow-hidden group">
+            <Image
+              src={heroImage}
+              alt={property.titulo}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              loading="eager"
+            />
+            {/* Gradiente escuro para garantir contraste perfeito */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/30 pointer-events-none" />
+
+            {/* Localização e Título no topo e centro da imagem */}
+            <div className="absolute top-5 left-5 right-5 flex items-center justify-between pointer-events-none">
+              <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/20 text-xs font-semibold">
+                <MapPin className="w-3.5 h-3.5 text-blue-400" />
+                <span>{property.cidade || "Caldas Novas · GO"}</span>
+              </div>
+
+              <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md text-amber-300 border border-white/20 text-xs font-black">
+                <Star className="w-3.5 h-3.5 fill-amber-300" />
+                <span>4.98</span>
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+            {/* Título e Pill Flutuante de Preço na parte inferior da foto (exatamente como na imagem) */}
+            <div className="absolute bottom-5 left-5 right-5 space-y-3">
+              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">
                 {property.titulo}
               </h1>
-              <p className="text-base sm:text-lg opacity-80 max-w-2xl font-normal leading-relaxed">
-                Piscina aquecida privativa, cascata e estrutura premium para você relaxar com exclusividade na capital das águas termais.
-              </p>
-            </div>
 
-            {/* Destaque de Preço */}
-            <div className={`p-4 sm:p-5 rounded-2xl shrink-0 text-center sm:text-right ${theme.cardHighlightClass}`}>
-              <span className="text-[11px] uppercase tracking-wider font-semibold opacity-70 block">
-                Valor por noite
-              </span>
-              <div className="flex items-baseline justify-center sm:justify-end gap-1.5 mt-0.5">
-                <span className={`text-2xl sm:text-3xl font-black ${theme.accentText}`}>
+              {/* Floating Pill com Diária */}
+              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-black/55 backdrop-blur-xl border border-white/20 text-white shadow-2xl">
+                <div className="pl-2">
+                  <span className="text-[10px] uppercase font-bold text-white/70 block">
+                    Diária da temporada
+                  </span>
+                  <span className="text-xs sm:text-sm font-semibold text-white/90">
+                    Piscina aquecida privativa
+                  </span>
+                </div>
+
+                <div className="px-4 py-2 rounded-xl bg-white text-slate-900 font-black text-base sm:text-lg shadow-lg">
                   {property.valor_diaria}
-                </span>
-                <span className="text-xs opacity-70">/ diária</span>
+                </div>
               </div>
-              <span className="text-[10px] text-emerald-400 font-semibold block mt-1">
-                ✓ Direto com a proprietária
-              </span>
             </div>
           </div>
+
+          {/* Miniaturas das Fotos logo abaixo da imagem principal (estilo da imagem de referência) */}
+          {thumbnails.length > 0 && (
+            <div className="grid grid-cols-4 gap-2 pt-3 px-1">
+              {thumbnails.map((thumb, index) => {
+                const isLast = index === thumbnails.length - 1 && images.length > 5;
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={scrollToCalendar}
+                    className="relative aspect-square rounded-2xl overflow-hidden group shadow-sm"
+                  >
+                    <Image
+                      src={thumb}
+                      alt={`Miniatura ${index + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    {isLast && (
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center text-white font-black text-xs sm:text-sm">
+                        +{images.length - 4} Mais
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </section>
 
-        {/* Carrossel de Fotos Touch Scroll-Snap */}
-        <section className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm uppercase tracking-widest font-bold opacity-60">
-              Galeria da Propriedade
+        {/* ======================================================== */}
+        {/* DESCRIÇÃO E BOTÃO PRINCIPAL "NEXT / DISPONIBILIDADE"     */}
+        {/* ======================================================== */}
+        <section className={`p-6 sm:p-7 rounded-[32px] space-y-5 mt-5 ${theme.cardClass}`}>
+          <div className="space-y-2">
+            <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
+              <span>Descrição</span>
             </h2>
-            <span className="text-xs opacity-50">Arraste para o lado ⇄</span>
+
+            <div className="text-sm sm:text-base leading-relaxed opacity-80">
+              <p className={showFullDesc ? "" : "line-clamp-3"}>
+                {property.descricao}
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowFullDesc(!showFullDesc)}
+                className="mt-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline inline-block"
+              >
+                {showFullDesc ? "Ler menos" : "...Ler mais"}
+              </button>
+            </div>
+          </div>
+
+          {/* Botão Principal Estilo Imagem de Referência */}
+          <button
+            type="button"
+            onClick={scrollToCalendar}
+            className={`w-full py-4 px-6 rounded-2xl text-base font-black flex items-center justify-center gap-2 tracking-wide shadow-lg ${theme.buttonPrimary}`}
+          >
+            <Calendar className="w-5 h-5" />
+            <span>Ver Disponibilidade & Reservar</span>
+          </button>
+        </section>
+
+        {/* ======================================================== */}
+        {/* CALENDÁRIO DE DISPONIBILIDADE & OPÇÕES (TELA DIREITA)    */}
+        {/* ======================================================== */}
+        {property.mostrar_calendario !== false && (
+          <section ref={calendarSectionRef} className="pt-6 space-y-3">
+            <div className="flex items-center justify-between px-2">
+              <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
+                <CalendarCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <span>Calendário de Disponibilidade</span>
+              </h2>
+              <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Atualizado em tempo real
+              </span>
+            </div>
+
+            <AvailabilityCalendar property={property} theme={theme} />
+          </section>
+        )}
+
+        {/* ======================================================== */}
+        {/* CARROSSEL COMPLETO DE FOTOS                              */}
+        {/* ======================================================== */}
+        <section className="pt-8 space-y-3">
+          <div className="flex items-center justify-between px-2">
+            <h2 className="text-lg font-black tracking-tight">Galeria Completa</h2>
+            <span className="text-xs opacity-60">Arraste para o lado ⇄</span>
           </div>
 
           <PhotoCarousel
@@ -182,122 +287,71 @@ export default function Home() {
           />
         </section>
 
-        {/* Card de Conversão Rápida / CTA WhatsApp */}
-        <section className={`p-6 sm:p-8 rounded-3xl ${theme.cardHighlightClass} shadow-2xl relative overflow-hidden`}>
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center md:text-left">
-              <span className={`text-xs font-bold uppercase tracking-widest ${theme.accentText}`}>
-                Temporada 2026 com Desconto Exclusivo
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
-                Garanta suas datas antes que esgotem
-              </h3>
-              <p className="text-sm opacity-80 max-w-xl">
-                Aluguel 100% seguro direto com quem é dono, sem taxas de serviço adicionais de aplicativos. Atendimento rápido e personalizado no WhatsApp.
-              </p>
-            </div>
-
-            <a
-              href={property.link_whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`w-full md:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-base font-black transition-all hover:scale-105 active:scale-95 shadow-xl ${theme.buttonPrimary}`}
-            >
-              <MessageCircle className="w-5 h-5 fill-current" />
-              <span>Chamar no WhatsApp Agora</span>
-            </a>
-          </div>
-        </section>
-
-        {/* Destaques e Comodidades */}
-        <section className="space-y-6">
-          <div className="space-y-1">
-            <span className={`text-xs uppercase tracking-widest font-bold ${theme.accentText}`}>
-              Conforto Absoluto
+        {/* ======================================================== */}
+        {/* COMODIDADES E ESTRUTURA                                 */}
+        {/* ======================================================== */}
+        <section className="pt-8 space-y-4">
+          <div className="space-y-1 px-1">
+            <span className={`text-xs uppercase font-extrabold tracking-wider ${theme.accentText}`}>
+              Estrutura Premium
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-              O que a Home Paraíso oferece
-            </h2>
+            <h2 className="text-2xl font-black tracking-tight">O que você vai encontrar</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {amenities.map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div
                   key={idx}
-                  className={`p-5 rounded-2xl ${theme.cardClass} hover:border-white/30 transition-all`}
+                  className={`p-4 sm:p-5 rounded-2xl flex items-start gap-3.5 ${theme.cardClass}`}
                 >
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3.5 ${theme.pillClass}`}>
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${theme.pillClass}`}
+                  >
                     <Icon className="w-5 h-5" />
                   </div>
-                  <h3 className="font-bold text-base tracking-tight">{item.title}</h3>
-                  <p className="text-xs opacity-75 mt-1 leading-relaxed">{item.desc}</p>
+                  <div>
+                    <h3 className="font-bold text-sm tracking-tight">{item.title}</h3>
+                    <p className="text-xs opacity-75 mt-0.5 leading-relaxed">{item.desc}</p>
+                  </div>
                 </div>
               );
             })}
           </div>
         </section>
 
-        {/* Descrição Completa */}
-        <section className="space-y-4">
-          <div className="space-y-1">
-            <span className={`text-xs uppercase tracking-widest font-bold ${theme.accentText}`}>
-              Detalhes do Imóvel
+        {/* ======================================================== */}
+        {/* PERGUNTAS FREQUENTES (FAQ)                              */}
+        {/* ======================================================== */}
+        <section className="pt-8 space-y-4">
+          <div className="space-y-1 px-1">
+            <span className={`text-xs uppercase font-extrabold tracking-wider ${theme.accentText}`}>
+              Dúvidas Comuns
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Sobre sua hospedagem
-            </h2>
+            <h2 className="text-2xl font-black tracking-tight">Perguntas Frequentes</h2>
           </div>
 
-          <div className={`p-6 sm:p-8 rounded-3xl ${theme.cardClass} space-y-4 leading-relaxed text-sm sm:text-base opacity-90`}>
-            <p className="whitespace-pre-line">{property.descricao}</p>
-
-            <div className="pt-4 border-t border-white/10 flex flex-wrap gap-4 text-xs font-semibold">
-              <span className="flex items-center gap-1.5 text-emerald-400">
-                <CheckCircle2 className="w-4 h-4" /> Higienização Completa Pré-Check-in
-              </span>
-              <span className="flex items-center gap-1.5 text-emerald-400">
-                <CheckCircle2 className="w-4 h-4" /> Roupas de Cama e Banho Opcionais
-              </span>
-              <span className="flex items-center gap-1.5 text-emerald-400">
-                <CheckCircle2 className="w-4 h-4" /> Suporte Durante Toda a Estadia
-              </span>
-            </div>
-          </div>
-        </section>
-
-        {/* Perguntas Frequentes (FAQ) */}
-        <section className="space-y-6">
-          <div className="space-y-1">
-            <span className={`text-xs uppercase tracking-widest font-bold ${theme.accentText}`}>
-              Tire suas Dúvidas
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Perguntas Frequentes
-            </h2>
-          </div>
-
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className={`rounded-2xl border transition-all ${theme.cardClass}`}
+                className={`rounded-2xl border transition-all overflow-hidden ${theme.cardClass}`}
               >
                 <button
                   type="button"
                   onClick={() => setActiveFaq(activeFaq === index ? null : index)}
-                  className="w-full flex items-center justify-between p-5 text-left text-sm sm:text-base font-bold"
+                  className="w-full flex items-center justify-between p-4 sm:p-5 text-left text-sm font-bold"
                 >
                   <span>{faq.q}</span>
                   <ChevronDown
-                    className={`w-5 h-5 shrink-0 transition-transform duration-300 opacity-60 ${
+                    className={`w-4 h-4 shrink-0 transition-transform duration-300 opacity-60 ${
                       activeFaq === index ? "rotate-180" : ""
                     }`}
                   />
                 </button>
                 {activeFaq === index && (
-                  <div className="px-5 pb-5 text-xs sm:text-sm opacity-80 leading-relaxed border-t border-white/10 pt-3">
+                  <div className="px-5 pb-5 text-xs sm:text-sm opacity-80 leading-relaxed border-t border-black/5 dark:border-white/10 pt-3">
                     {faq.a}
                   </div>
                 )}
@@ -306,25 +360,38 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Rodapé e Link Discreto do Admin */}
-        <footer className="pt-8 border-t border-white/10 text-center space-y-4 opacity-70 text-xs">
-          <p>© 2026 {property.titulo} · Todos os direitos reservados.</p>
-          <p>Caldas Novas, Goiás — O Paraíso das Águas Quentes.</p>
-          <div className="pt-2">
+        {/* Rodapé com Link do Admin */}
+        <footer className="pt-12 text-center space-y-3 opacity-70 text-xs">
+          <p>© 2026 {property.titulo} · Caldas Novas, GO.</p>
+          <div>
             <Link
               to="/admin"
-              className="inline-flex items-center gap-1.5 text-white/50 hover:text-white transition-colors py-1 px-3 rounded-full hover:bg-white/10"
+              className="inline-flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity py-1 px-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10"
             >
               <Lock className="w-3.5 h-3.5" />
               <span>Painel da Proprietária</span>
             </Link>
           </div>
         </footer>
-      </main>
+      </div>
 
-      {/* Barra de Reserva Flutuante Fixa para Celular (Mobile Sticky Booking Bar) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-3 bg-black/90 backdrop-blur-xl border-t border-white/15">
-        <div className="flex items-center justify-between gap-3">
+      {/* Modal / Bottom Sheet do Calendário (se aberto via clique direto) */}
+      {calendarModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+          <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-t-[36px] sm:rounded-[36px] bg-white animate-in slide-in-from-bottom-5">
+            <AvailabilityCalendar
+              property={property}
+              theme={theme}
+              isModal={true}
+              onClose={() => setCalendarModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Barra Inferior Fixa para Celular */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 p-3 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-2xl">
+        <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
           <div>
             <span className="text-[10px] uppercase font-bold opacity-60 block">Diária</span>
             <span className={`text-lg font-black ${theme.accentText}`}>
@@ -332,15 +399,14 @@ export default function Home() {
             </span>
           </div>
 
-          <a
-            href={property.link_whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-black shadow-lg ${theme.buttonPrimary}`}
+          <button
+            type="button"
+            onClick={scrollToCalendar}
+            className={`flex-1 py-3 px-4 rounded-xl text-sm font-black flex items-center justify-center gap-2 shadow-md ${theme.buttonPrimary}`}
           >
-            <MessageCircle className="w-4 h-4 fill-current" />
-            <span>Reservar no WhatsApp</span>
-          </a>
+            <Calendar className="w-4 h-4" />
+            <span>Ver Disponibilidade</span>
+          </button>
         </div>
       </div>
     </div>
