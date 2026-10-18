@@ -4,12 +4,11 @@ import {
   ChevronRight,
   Calendar as CalendarIcon,
   Trash2,
-  Plus,
   CheckCircle2,
   Clock,
   Sparkles,
-  Layers,
-  HelpCircle,
+  Info,
+  X,
 } from "lucide-react";
 
 const MONTH_NAMES = [
@@ -35,8 +34,8 @@ export const ORIGIN_CONFIG = {
     name: "Airbnb",
     color: "bg-rose-500",
     text: "text-rose-400",
-    border: "border-rose-500/40",
-    badge: "bg-rose-500/15 text-rose-300 border border-rose-500/30",
+    border: "border-rose-500/50",
+    badge: "bg-rose-500/20 text-rose-300 border border-rose-500/30",
     dot: "bg-rose-500",
   },
   booking: {
@@ -44,8 +43,8 @@ export const ORIGIN_CONFIG = {
     name: "Booking.com",
     color: "bg-blue-600",
     text: "text-blue-400",
-    border: "border-blue-500/40",
-    badge: "bg-blue-500/15 text-blue-300 border border-blue-500/30",
+    border: "border-blue-500/50",
+    badge: "bg-blue-500/20 text-blue-300 border border-blue-500/30",
     dot: "bg-blue-500",
   },
   direto: {
@@ -53,8 +52,8 @@ export const ORIGIN_CONFIG = {
     name: "Reserva Direta",
     color: "bg-emerald-500",
     text: "text-emerald-400",
-    border: "border-emerald-500/40",
-    badge: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
+    border: "border-emerald-500/50",
+    badge: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
     dot: "bg-emerald-500",
   },
   bloqueado: {
@@ -62,8 +61,8 @@ export const ORIGIN_CONFIG = {
     name: "Bloqueio / Pessoal",
     color: "bg-slate-500",
     text: "text-slate-400",
-    border: "border-slate-500/40",
-    badge: "bg-slate-500/15 text-slate-300 border border-slate-500/30",
+    border: "border-slate-500/50",
+    badge: "bg-slate-500/20 text-slate-300 border border-slate-500/30",
     dot: "bg-slate-400",
   },
 };
@@ -79,11 +78,9 @@ export default function AdminCalendar({
     new Date(today.getFullYear(), today.getMonth(), 1)
   );
 
-  // Estados para marcar período
   const [selectedOrigin, setSelectedOrigin] = useState("airbnb");
-  const [rangeStart, setRangeStart] = useState("");
-  const [rangeEnd, setRangeEnd] = useState("");
-  const [bookingNote, setBookingNote] = useState("");
+  // Suporte a seleção de período direto pelo calendário (clique no início e depois no fim)
+  const [rangeStart, setRangeStart] = useState(null);
 
   const handlePrevMonth = () => {
     setCurrentDate(
@@ -104,54 +101,62 @@ export default function AdminCalendar({
     return `${y}-${m}-${d}`;
   };
 
-  // Clique em um dia individual no calendário
+  // Clique interativo no calendário com suporte a 1 dia ou período direto
   const handleDayClick = (dateKey) => {
     const next = { ...datasOcupadas };
 
-    if (next[dateKey]) {
-      // Se já ocupado, remove (torna livre)
-      delete next[dateKey];
+    // Se não havia data inicial de período selecionada
+    if (!rangeStart) {
+      if (next[dateKey]) {
+        // Se já está ocupado, um toque simples desmarca/libera
+        delete next[dateKey];
+        onChange(next);
+      } else {
+        // Marca o início de um possível período ou dia avulso
+        setRangeStart(dateKey);
+      }
     } else {
-      // Se livre, marca com a origem selecionada
-      next[dateKey] = {
-        origem: selectedOrigin,
-        nota: bookingNote.trim() || undefined,
-      };
-    }
+      // Já havia uma data inicial selecionada: fecha o período!
+      let start = rangeStart;
+      let end = dateKey;
 
-    onChange(next);
+      if (start > end) {
+        // Inverte se clicou em ordem decrescente
+        const temp = start;
+        start = end;
+        end = temp;
+      }
+
+      let cursor = new Date(`${start}T00:00:00`);
+      const endDate = new Date(`${end}T00:00:00`);
+
+      while (cursor <= endDate) {
+        const key = cursor.toISOString().split("T")[0];
+        next[key] = {
+          origem: selectedOrigin,
+        };
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      setRangeStart(null);
+      onChange(next);
+    }
   };
 
-  // Marcar intervalo de datas selecionado
-  const handleApplyRange = (e) => {
-    e.preventDefault();
-    if (!rangeStart || !rangeEnd) return;
-
-    if (rangeStart > rangeEnd) {
-      alert("A data inicial não pode ser maior que a data final.");
-      return;
-    }
-
+  // Confirmar apenas o dia avulso se o usuário quiser marcar só um dia
+  const handleConfirmSingleDay = () => {
+    if (!rangeStart) return;
     const next = { ...datasOcupadas };
-    let cursor = new Date(`${rangeStart}T00:00:00`);
-    const end = new Date(`${rangeEnd}T00:00:00`);
-
-    while (cursor <= end) {
-      const key = cursor.toISOString().split("T")[0];
-      next[key] = {
-        origem: selectedOrigin,
-        nota: bookingNote.trim() || undefined,
-      };
-      cursor.setDate(cursor.getDate() + 1);
-    }
-
+    next[rangeStart] = { origem: selectedOrigin };
+    setRangeStart(null);
     onChange(next);
-    setRangeStart("");
-    setRangeEnd("");
-    setBookingNote("");
   };
 
-  // Limpar uma reserva específica
+  const handleCancelRange = () => {
+    setRangeStart(null);
+  };
+
+  // Liberar uma reserva específica
   const handleRemoveDate = (dateKey) => {
     const next = { ...datasOcupadas };
     delete next[dateKey];
@@ -192,41 +197,54 @@ export default function AdminCalendar({
     });
   }
 
-  // Lista ordenada de reservas
   const sortedDates = Object.keys(datasOcupadas).sort();
 
   return (
     <div className="space-y-6">
-      {/* Toggle para mostrar ou ocultar calendário na Landing Page */}
-      <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4">
-        <div>
-          <span className="font-bold text-sm text-white block">
-            Exibir Calendário de Disponibilidade na Página
-          </span>
-          <span className="text-xs text-slate-400">
-            Permite que os clientes vejam as datas livres e ocupadas na Landing Page.
-          </span>
+      {/* 1. Toggle Switch com CSS Robusto e Corrigido */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-sm text-white">
+              Exibir Calendário na Landing Page
+            </span>
+            <span
+              className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                mostrarCalendario
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                  : "bg-slate-800 text-slate-400 border border-slate-700"
+              }`}
+            >
+              {mostrarCalendario ? "Visível no Site" : "Oculto"}
+            </span>
+          </div>
+          <p className="text-xs text-slate-400">
+            Quando ativo, os clientes podem consultar as datas livres e calcular valores na página.
+          </p>
         </div>
 
+        {/* Toggle Switch Estilo iOS corrigido com shrink-0 */}
         <button
           type="button"
+          role="switch"
+          aria-checked={mostrarCalendario}
           onClick={() => onToggleMostrarCalendario(!mostrarCalendario)}
-          className={`w-14 h-8 rounded-full p-1 transition-colors ${
-            mostrarCalendario ? "bg-emerald-500" : "bg-slate-800"
+          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+            mostrarCalendario ? "bg-emerald-500" : "bg-slate-700"
           }`}
         >
-          <div
-            className={`w-6 h-6 rounded-full bg-white transition-transform ${
-              mostrarCalendario ? "translate-x-6" : "translate-x-0"
+          <span
+            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+              mostrarCalendario ? "translate-x-5" : "translate-x-0"
             }`}
           />
         </button>
       </div>
 
-      {/* Seletor de Origem de Ocupação */}
+      {/* 2. Seletor de Origem de Ocupação */}
       <div className="space-y-2">
         <label className="text-xs uppercase font-bold text-slate-400 tracking-wider">
-          Selecione o canal para marcar:
+          Canal para marcar no calendário:
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {Object.values(ORIGIN_CONFIG).map((org) => {
@@ -238,7 +256,7 @@ export default function AdminCalendar({
                 onClick={() => setSelectedOrigin(org.id)}
                 className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
                   isSelected
-                    ? `${org.border} bg-slate-800 text-white font-bold ring-2 ring-white/20`
+                    ? `${org.border} bg-slate-800 text-white font-bold ring-2 ring-white/20 shadow-md scale-102`
                     : "border-slate-800 bg-slate-950 text-slate-400 hover:text-white"
                 }`}
               >
@@ -250,68 +268,36 @@ export default function AdminCalendar({
         </div>
       </div>
 
-      {/* Formulário para Marcar Período Completo */}
-      <form
-        onSubmit={handleApplyRange}
-        className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3"
-      >
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            <Plus className="w-3.5 h-3.5 text-sky-400" />
-            Marcar Período (Entrada e Saída)
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <div>
-            <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">
-              Data de Início
-            </label>
-            <input
-              type="date"
-              value={rangeStart}
-              onChange={(e) => setRangeStart(e.target.value)}
-              className="w-full h-10 bg-slate-900 border border-slate-700 rounded-lg px-3 text-xs text-white focus:outline-none focus:border-sky-400"
-            />
+      {/* Alerta / Barra de seleção de período ativa */}
+      {rangeStart && (
+        <div className="p-3.5 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-200 text-xs flex flex-wrap items-center justify-between gap-3 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <Info className="w-4 h-4 text-blue-400 shrink-0" />
+            <span>
+              Início: <strong>{rangeStart.split("-").reverse().join("/")}</strong>. Toque na data final no calendário para marcar o período, ou confirme apenas este dia.
+            </span>
           </div>
 
-          <div>
-            <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">
-              Data Final
-            </label>
-            <input
-              type="date"
-              value={rangeEnd}
-              onChange={(e) => setRangeEnd(e.target.value)}
-              className="w-full h-10 bg-slate-900 border border-slate-700 rounded-lg px-3 text-xs text-white focus:outline-none focus:border-sky-400"
-            />
-          </div>
-
-          <div>
-            <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">
-              Nota / Hóspede (Opcional)
-            </label>
-            <input
-              type="text"
-              value={bookingNote}
-              onChange={(e) => setBookingNote(e.target.value)}
-              placeholder="Ex: Família Souza"
-              className="w-full h-10 bg-slate-900 border border-slate-700 rounded-lg px-3 text-xs text-white focus:outline-none focus:border-sky-400"
-            />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleConfirmSingleDay}
+              className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs"
+            >
+              Marcar só este dia
+            </button>
+            <button
+              type="button"
+              onClick={handleCancelRange}
+              className="p-1 rounded text-blue-300 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
+      )}
 
-        <div className="flex justify-end pt-1">
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs transition-colors shadow-md"
-          >
-            Bloquear Período Selecionado
-          </button>
-        </div>
-      </form>
-
-      {/* Grade Interativa do Calendário */}
+      {/* 3. Grade Interativa do Calendário */}
       <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -326,6 +312,7 @@ export default function AdminCalendar({
               type="button"
               onClick={handlePrevMonth}
               className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300"
+              aria-label="Mês anterior"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -333,6 +320,7 @@ export default function AdminCalendar({
               type="button"
               onClick={handleNextMonth}
               className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300"
+              aria-label="Próximo mês"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -340,8 +328,7 @@ export default function AdminCalendar({
         </div>
 
         <p className="text-[11px] text-slate-400">
-          💡 <em>Dica:</em> Toque em qualquer dia para marcar como{" "}
-          <strong>{ORIGIN_CONFIG[selectedOrigin]?.name}</strong> ou desmarcar.
+          💡 <strong>Como marcar:</strong> Toque em um dia livre para começar. Para marcar várias noites seguidas, toque no dia de check-in e depois no de check-out. Para desmarcar, basta tocar no dia ocupado.
         </p>
 
         {/* Grid de dias */}
@@ -365,21 +352,30 @@ export default function AdminCalendar({
                 );
               }
 
+              const isStartSelected = rangeStart === item.key;
               const config = item.info
                 ? ORIGIN_CONFIG[item.info.origem] || ORIGIN_CONFIG.bloqueado
                 : null;
+
+              let cellStyle =
+                "h-11 rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all relative";
+
+              if (isStartSelected) {
+                cellStyle += " bg-blue-500 text-white ring-2 ring-white shadow-lg scale-105 z-10";
+              } else if (config) {
+                cellStyle += ` ${config.color} text-white shadow-md hover:opacity-90`;
+              } else {
+                cellStyle +=
+                  " bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white active:scale-95";
+              }
 
               return (
                 <button
                   key={item.key}
                   type="button"
                   onClick={() => handleDayClick(item.key)}
-                  className={`h-11 rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all relative ${
-                    config
-                      ? `${config.color} text-white shadow-md scale-102`
-                      : "bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white"
-                  }`}
-                  title={item.info?.nota || (config ? config.name : "Livre")}
+                  className={cellStyle}
+                  title={item.info?.nota || (config ? config.name : "Livre - toque para marcar")}
                 >
                   <span>{item.day}</span>
                   {config && (
@@ -408,16 +404,21 @@ export default function AdminCalendar({
         </div>
       </div>
 
-      {/* Lista de Datas Ocupadas */}
-      <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+      {/* 4. Lista de Datas Ocupadas sem scrollbar visível (no-scrollbar) */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
             Total de Dias Ocupados ({sortedDates.length})
           </span>
+          {sortedDates.length > 0 && (
+            <span className="text-[11px] text-slate-400">
+              Role para ver todas as datas
+            </span>
+          )}
         </div>
 
         {sortedDates.length > 0 ? (
-          <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+          <div className="max-h-56 overflow-y-auto space-y-1.5 no-scrollbar pr-0.5">
             {sortedDates.map((dateKey) => {
               const info = datasOcupadas[dateKey];
               const config =
@@ -427,14 +428,16 @@ export default function AdminCalendar({
               return (
                 <div
                   key={dateKey}
-                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs"
+                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs hover:border-slate-700 transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <span className={`w-2.5 h-2.5 rounded-full ${config.color}`} />
                     <span className="font-bold text-white">
                       {d}/{m}/{y}
                     </span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${config.badge}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${config.badge}`}
+                    >
                       {config.name}
                     </span>
                     {info?.nota && (
@@ -457,7 +460,7 @@ export default function AdminCalendar({
             })}
           </div>
         ) : (
-          <p className="text-xs text-slate-500 text-center py-2">
+          <p className="text-xs text-slate-500 text-center py-3">
             Nenhuma data marcada como ocupada ainda.
           </p>
         )}
