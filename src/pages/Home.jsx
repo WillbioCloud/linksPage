@@ -36,7 +36,7 @@ export default function Home() {
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
-  const [activeHeroIndex, setActiveHeroIndex] = useState(0);
+  const [galleryTarget, setGalleryTarget] = useState(null);
   const calendarSectionRef = useRef(null);
   const gallerySectionRef = useRef(null);
 
@@ -62,7 +62,6 @@ export default function Home() {
   const effectiveProperty = urlTheme ? { ...property, tema: urlTheme } : property;
   const images = property.imagens || [];
   const heroImage =
-    images[activeHeroIndex] ||
     images[0] ||
     "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80";
   const thumbnails = images.slice(1, 5);
@@ -127,7 +126,8 @@ export default function Home() {
     }
   };
 
-  const scrollToGallery = () => {
+  const scrollToGallery = (photoIndex = 0) => {
+    setGalleryTarget({ index: photoIndex, ts: Date.now() });
     if (gallerySectionRef.current) {
       gallerySectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -153,8 +153,20 @@ export default function Home() {
         {/* CARD PRINCIPAL HERO (INSPIRADO DIRETAMENTE NA IMAGEM)     */}
         {/* ======================================================== */}
         <section className={`relative overflow-hidden ${theme.heroCardClass}`}>
-          {/* Imagem de Capa Grande */}
-          <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full rounded-[30px] overflow-hidden group">
+          {/* Imagem de Capa Grande (ao clicar, desce para a galeria) */}
+          <div
+            onClick={() => scrollToGallery(0)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                scrollToGallery(0);
+              }
+            }}
+            title="Clique para ver na galeria completa"
+            className="relative aspect-[4/3] sm:aspect-[16/10] w-full rounded-[30px] overflow-hidden group cursor-pointer"
+          >
             <Image
               src={heroImage}
               alt={property.titulo}
@@ -201,30 +213,20 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Miniaturas das Fotos logo abaixo da imagem principal (estilo da imagem de referência) */}
+          {/* Miniaturas das Fotos logo abaixo da imagem principal (ao clicar, desce para a galeria) */}
           {thumbnails.length > 0 && (
             <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-2.5 pb-2 px-1">
               {thumbnails.map((thumb, index) => {
                 const isLast = index === thumbnails.length - 1 && images.length > 5;
                 const thumbActualIndex = index + 1;
-                const isActive = activeHeroIndex === thumbActualIndex;
 
                 return (
                   <button
                     key={index}
                     type="button"
-                    onClick={() => {
-                      if (isLast) {
-                        scrollToGallery();
-                      } else {
-                        setActiveHeroIndex(thumbActualIndex);
-                      }
-                    }}
-                    className={`relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden group shadow-sm min-w-0 w-full focus:outline-none transition-all duration-300 ${
-                      isActive
-                        ? "ring-2 ring-blue-500 scale-[0.98]"
-                        : "hover:opacity-90 active:scale-95"
-                    }`}
+                    onClick={() => scrollToGallery(thumbActualIndex)}
+                    title={`Ver foto ${thumbActualIndex + 1} na galeria completa`}
+                    className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden group shadow-sm min-w-0 w-full focus:outline-none transition-all duration-300 hover:opacity-90 active:scale-95"
                   >
                     <Image
                       src={thumb}
@@ -352,7 +354,7 @@ export default function Home() {
         {/* ======================================================== */}
         {/* CARROSSEL COMPLETO DE FOTOS                              */}
         {/* ======================================================== */}
-        <section ref={gallerySectionRef} id="galeria" className="pt-8 space-y-3">
+        <section ref={gallerySectionRef} id="galeria" className="pt-8 space-y-3 scroll-mt-6">
           <div className="flex items-center justify-between px-2">
             <h2 className="text-lg font-black tracking-tight">Galeria Completa</h2>
             <span className="text-xs opacity-60">Arraste para o lado ⇄</span>
@@ -362,6 +364,7 @@ export default function Home() {
             imagens={property.imagens}
             theme={theme}
             propertyTitle={property.titulo}
+            targetPhoto={galleryTarget}
           />
         </section>
 

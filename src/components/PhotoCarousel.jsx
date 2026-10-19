@@ -2,10 +2,33 @@ import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import Image from "@/components/ui/image";
 
-export default function PhotoCarousel({ imagens = [], theme, propertyTitle = "Home Paraíso" }) {
+export default function PhotoCarousel({
+  imagens = [],
+  theme,
+  propertyTitle = "Home Paraíso",
+  targetPhoto,
+}) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const scrollRef = useRef(null);
+  const thumbStripRef = useRef(null);
+
+  // Monitora comando externo para rolar até uma foto específica
+  useEffect(() => {
+    if (targetPhoto && typeof targetPhoto.index === "number") {
+      const idx = targetPhoto.index;
+      if (idx >= 0 && idx < imagens.length) {
+        scrollToIndex(idx);
+        // Garante a sincronização caso o scroll da página esteja ocorrendo
+        const timer1 = setTimeout(() => scrollToIndex(idx), 150);
+        const timer2 = setTimeout(() => scrollToIndex(idx), 400);
+        return () => {
+          clearTimeout(timer1);
+          clearTimeout(timer2);
+        };
+      }
+    }
+  }, [targetPhoto, imagens.length]);
 
   // Monitora a rolagem para atualizar o indicador de slide ativo
   const handleScroll = () => {
@@ -21,11 +44,25 @@ export default function PhotoCarousel({ imagens = [], theme, propertyTitle = "Ho
   const scrollToIndex = (index) => {
     if (!scrollRef.current) return;
     const clientWidth = scrollRef.current.clientWidth;
-    scrollRef.current.scrollTo({
-      left: clientWidth * index,
-      behavior: "smooth",
-    });
+    if (clientWidth > 0) {
+      scrollRef.current.scrollTo({
+        left: clientWidth * index,
+        behavior: "smooth",
+      });
+    }
     setActiveIndex(index);
+
+    // Também rola a faixa de miniaturas horizontal da galeria para manter o item selecionado visível
+    if (thumbStripRef.current) {
+      const thumbBtn = thumbStripRef.current.children[index];
+      if (thumbBtn && typeof thumbBtn.scrollIntoView === "function") {
+        thumbBtn.scrollIntoView({
+          behavior: "smooth",
+          inline: "center",
+          block: "nearest",
+        });
+      }
+    }
   };
 
   const handleNext = () => {
@@ -145,7 +182,7 @@ export default function PhotoCarousel({ imagens = [], theme, propertyTitle = "Ho
 
       {/* Miniaturas horizontais para troca rápida */}
       {imagens.length > 1 && (
-        <div className="mt-3 flex gap-2.5 overflow-x-auto no-scrollbar pb-1">
+        <div ref={thumbStripRef} className="mt-3 flex gap-2.5 overflow-x-auto no-scrollbar pb-1">
           {imagens.map((img, i) => (
             <button
               key={i}
