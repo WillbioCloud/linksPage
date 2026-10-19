@@ -151,7 +151,7 @@ export default function Home() {
   const faqs = [
     {
       q: "Qual o horário de check-in e check-out?",
-      a: "O check-in padrão é a partir das 14:00 e o check-out até às 11:00. Caso precise de horários flexíveis, converse diretamente pelo WhatsApp para verificar disponibilidade.",
+      a: "O check-in padrão é a partir das 8:00 e o check-out até às 11:00. Caso precise de horários flexíveis, converse diretamente pelo WhatsApp para verificar disponibilidade.",
     },
     {
       q: "A piscina é realmente aquecida?",
@@ -463,9 +463,6 @@ export default function Home() {
                 <CalendarCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 <span>Calendário de Disponibilidade</span>
               </h2>
-              <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Atualizado em tempo real
-              </span>
             </div>
 
             <AvailabilityCalendar property={effectiveProperty} theme={theme} />

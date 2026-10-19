@@ -412,7 +412,7 @@ export default function AvailabilityCalendar({
           <Clock className={`w-4 h-4 shrink-0 ${activeTheme.accentText || "text-emerald-500"}`} />
           <div>
             <span className="text-[10px] opacity-60 block uppercase">Check-in</span>
-            <span>A partir das 14:00</span>
+            <span>A partir das 8:00</span>
           </div>
         </div>
         <div className={`p-3 flex items-center gap-2.5 transition-all ${calStyle.infoCard}`}>
