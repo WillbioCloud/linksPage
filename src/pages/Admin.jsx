@@ -432,7 +432,7 @@ export default function Admin() {
       {/* ======================================================== */}
       {/* CONTEÚDO PRINCIPAL (Scroll Isolado no Mobile)             */}
       {/* ======================================================== */}
-      <main className="flex-1 overflow-y-auto no-scrollbar pb-36 px-3 py-4 space-y-4 md:flex-none md:overflow-visible md:max-w-4xl md:mx-auto md:px-4 md:py-6 md:space-y-6 md:pb-0">
+      <main className="flex-1 overflow-y-auto no-scrollbar pb-44 px-3 py-4 space-y-4 md:flex-none md:overflow-visible md:max-w-4xl md:mx-auto md:px-4 md:py-6 md:space-y-6 md:pb-0">
         {/* Status Conexão */}
         <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
@@ -897,12 +897,12 @@ export default function Admin() {
       {/* BOTÃO FLUTUANTE DE SALVAR NO MOBILE (STICKY ACTION)       */}
       {/* ======================================================== */}
       {hasChanges && (
-        <div className="md:hidden fixed bottom-[68px] inset-x-3 z-40 animate-in slide-in-from-bottom-4 duration-300">
+        <div className="md:hidden fixed bottom-[98px] inset-x-3.5 z-40 animate-in slide-in-from-bottom-4 duration-300">
           <button
             type="button"
             disabled={isSaving}
             onClick={handleSave}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm shadow-[0_8px_25px_rgba(16,185,129,0.4)] border border-emerald-400/30 active:scale-98 transition-all"
+            className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm shadow-[0_8px_25px_rgba(16,185,129,0.4)] border border-emerald-400/30 active:scale-98 transition-all"
           >
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
@@ -919,7 +919,7 @@ export default function Admin() {
       {/* ======================================================== */}
       {/* BARRA DE NAVEGAÇÃO INFERIOR POR ABAS (MOBILE TAB BAR)     */}
       {/* ======================================================== */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 border-t border-slate-800 backdrop-blur-md px-2 py-2 flex items-center justify-around">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 border-t border-slate-800 backdrop-blur-md px-3 pt-2.5 pb-6 sm:pb-7 flex items-center justify-around shadow-[0_-8px_24px_rgba(0,0,0,0.4)]">
         {TABS.map((tab) => {
           const isActive = abaAtiva === tab.id;
           const Icon = tab.icon;
@@ -928,16 +928,16 @@ export default function Admin() {
               key={tab.id}
               type="button"
               onClick={() => setAbaAtiva(tab.id)}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 relative transition-all active:scale-95 ${
+              className={`flex-1 flex flex-col items-center justify-center py-1 px-1 relative transition-all active:scale-95 ${
                 isActive ? "text-sky-400 font-bold" : "text-slate-400 hover:text-slate-200"
               }`}
             >
               <div className="relative">
-                <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
+                <Icon className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
               </div>
-              <span className="text-[10px] mt-1 tracking-tight leading-none">{tab.label}</span>
+              <span className="text-[11px] mt-1.5 tracking-tight leading-none font-medium">{tab.label}</span>
               {isActive && (
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 mt-1 shadow-[0_0_8px_#38bdf8] animate-in zoom-in duration-200" />
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 mt-1.5 shadow-[0_0_8px_#38bdf8] animate-in zoom-in duration-200" />
               )}
             </button>
           );
