@@ -21,7 +21,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-poppins",
     isLight: true,
     bgClass: "bg-[#F3F4F6] text-slate-900 font-poppins",
-    containerClass: "max-w-xl mx-auto px-4 sm:px-5 py-6",
+    containerClass: "max-w-xl md:max-w-7xl mx-auto px-4 sm:px-5 md:px-8 py-6",
     heroCardClass:
       "bg-white rounded-[38px] p-2 sm:p-2.5 shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-200/80",
     cardClass:
@@ -46,7 +46,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-poppins",
     isLight: false,
     bgClass: "bg-[#002842] text-white font-poppins",
-    containerClass: "max-w-2xl mx-auto px-4 sm:px-6 py-6",
+    containerClass: "max-w-2xl md:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6",
     heroCardClass:
       "rounded-[38px] border border-white/25 bg-white/10 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,40,66,0.5)] p-2",
     cardClass:
@@ -71,7 +71,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-poppins",
     isLight: true,
     bgClass: "bg-[#E0E5EC] text-[#2D3436] font-poppins",
-    containerClass: "max-w-2xl mx-auto px-4 sm:px-6 py-6",
+    containerClass: "max-w-2xl md:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6",
     heroCardClass:
       "bg-[#E0E5EC] rounded-[38px] p-3 shadow-[8px_8px_18px_#a3b1c6,-8px_-8px_18px_#ffffff]",
     cardClass:
@@ -97,7 +97,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-serif",
     isLight: false,
     bgClass: "bg-[#0F0F0F] text-[#F3EFE6] font-serif",
-    containerClass: "max-w-2xl mx-auto px-4 sm:px-6 py-6",
+    containerClass: "max-w-2xl md:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6",
     heroCardClass:
       "bg-[#141414] rounded-[38px] p-2 border border-[#C5A059]/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)]",
     cardClass:
@@ -122,7 +122,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-sans",
     isLight: true,
     bgClass: "bg-[#F4F4F4] text-black",
-    containerClass: "max-w-2xl mx-auto px-4 sm:px-6 py-6",
+    containerClass: "max-w-2xl md:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6",
     heroCardClass:
       "bg-white rounded-none border-3 border-black p-2.5 shadow-[7px_7px_0_0_#000]",
     cardClass:
@@ -147,7 +147,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-poppins",
     isLight: true,
     bgClass: "bg-[#E8EAE3] text-[#2A3B2E] font-poppins",
-    containerClass: "max-w-2xl mx-auto px-4 sm:px-6 py-6",
+    containerClass: "max-w-2xl md:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6",
     heroCardClass:
       "bg-white/80 backdrop-blur-xl rounded-[38px] p-2.5 border border-[#4A5D4E]/20 shadow-[0_16px_40px_rgba(74,93,78,0.12)]",
     cardClass:
@@ -172,7 +172,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-poppins",
     isLight: true,
     bgClass: "bg-[#FFF3E2] text-[#14484B] font-poppins",
-    containerClass: "max-w-2xl mx-auto px-4 sm:px-6 py-6",
+    containerClass: "max-w-2xl md:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6",
     heroCardClass:
       "bg-[#FFF3E2] rounded-[38px] p-2.5 border-2 border-[#14484B] shadow-[6px_6px_0_0_#FFC24B]",
     cardClass:
@@ -197,7 +197,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-poppins",
     isLight: false,
     bgClass: "bg-gradient-to-b from-[#031d33] via-[#071724] to-[#040910] text-white font-poppins",
-    containerClass: "max-w-2xl mx-auto px-4 sm:px-6 py-6",
+    containerClass: "max-w-2xl md:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6",
     heroCardClass:
       "bg-sky-950/40 border border-sky-400/30 backdrop-blur-2xl rounded-[38px] p-2 shadow-2xl",
     cardClass:
@@ -222,7 +222,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-poppins",
     isLight: false,
     bgClass: "bg-gradient-to-b from-[#042016] via-[#081711] to-[#030a07] text-white font-poppins",
-    containerClass: "max-w-2xl mx-auto px-4 sm:px-6 py-6",
+    containerClass: "max-w-2xl md:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6",
     heroCardClass:
       "bg-emerald-950/40 border border-emerald-400/30 backdrop-blur-2xl rounded-[38px] p-2 shadow-2xl",
     cardClass:
@@ -247,7 +247,7 @@ export const THEMES_CONFIG = {
     fontClass: "font-serif",
     isLight: false,
     bgClass: "bg-gradient-to-b from-[#0a0a0a] via-[#121212] to-[#050505] text-[#f5f5f4] font-serif",
-    containerClass: "max-w-2xl mx-auto px-4 sm:px-6 py-6",
+    containerClass: "max-w-2xl md:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6",
     heroCardClass:
       "bg-zinc-900/70 border border-[#d4af37]/35 backdrop-blur-2xl rounded-[38px] p-2 shadow-2xl",
     cardClass:

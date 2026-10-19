@@ -7,6 +7,7 @@ import { Image } from "@/components/ui/image";
 
 const SURFACE = "bg-[#E0E5EC]";
 const RAISED = "shadow-[6px_6px_12px_#a3b1c6,-6px_-6px_12px_#ffffff]";
+const RAISED_DESK = "md:shadow-[8px_8px_16px_#a3b1c6,-8px_-8px_16px_#ffffff]";
 const PRESSED = "shadow-[inset_5px_5px_10px_#a3b1c6,inset_-5px_-5px_10px_#ffffff]";
 const PRESS_ON_TAP = "active:shadow-[inset_5px_5px_10px_#a3b1c6,inset_-5px_-5px_10px_#ffffff]";
 const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3f6f60]";
@@ -14,20 +15,20 @@ const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:rin
 export default function NeumorphTheme({ agency, links, properties, onAction }) {
   return (
     <div className={`min-h-screen pb-32 ${SURFACE}`}>
-      <div className="hero-blur-bottom relative h-[520px] overflow-hidden rounded-b-[48px]">
+      {/* Hero Header no Mobile */}
+      <div className="md:hidden hero-blur-bottom relative h-[520px] overflow-hidden rounded-b-[48px]">
         <Image
           src={agency.images.hero}
           alt="Piscina de água quente e jardim tropical de uma casa de temporada em Caldas Novas"
-          className="absolute inset-0 h-full w-full object-cover" />
-        
-        
+          className="absolute inset-0 h-full w-full object-cover"
+        />
         <Reveal className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center px-6 pb-8 text-center">
           <div className="h-24 w-24 overflow-hidden rounded-full border-[6px] border-[#E0E5EC] shadow-[6px_6px_16px_rgba(163,177,198,0.5)]">
             <Image
               src={agency.images.portrait}
               alt="Foto de perfil da corretora responsável pelo atendimento"
-              className="h-full w-full object-cover" />
-            
+              className="h-full w-full object-cover"
+            />
           </div>
           <h1 className="mt-5 text-[28px] font-semibold tracking-tight text-[#2D3436]">
             {agency.name}
@@ -38,95 +39,242 @@ export default function NeumorphTheme({ agency, links, properties, onAction }) {
         </Reveal>
       </div>
 
-      <div className="mx-auto w-full max-w-[560px] px-5">
-        <Reveal className="mt-8 flex justify-center">
-          <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#3f6f60] ${SURFACE} ${PRESSED}`}>
-            <span className="h-1.5 w-1.5 rounded-full bg-[#3f6f60]" />
-            {agency.response}
-          </div>
-        </Reveal>
-
-        <div className="mt-8 space-y-4">
-          {links.map((link, index) =>
-          <Reveal key={link.id} delay={0.06 + index * 0.04}>
-              <ActionLink
-              link={link}
-              onAction={onAction}
-              className={`flex min-h-[78px] w-full items-center gap-4 rounded-[26px] px-5 text-left transition-shadow duration-300 ${SURFACE} ${RAISED} ${PRESS_ON_TAP} ${FOCUS}`}>
-              
-                <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-[#3f6f60] ${SURFACE} ${PRESSED}`}>
-                  <LinkIcon name={link.icon} className="h-5 w-5" />
+      {/* Container Principal */}
+      <div className="mx-auto w-full max-w-[560px] md:max-w-7xl px-5 md:px-8">
+        {/* ======================================================== */}
+        {/* DESKTOP (md: em diante) -> 2 Colunas Neumórficas         */}
+        {/* ======================================================== */}
+        <div className="hidden md:grid md:grid-cols-12 md:gap-8 lg:gap-10 items-start pt-12">
+          {/* COLUNA DA ESQUERDA (60%) -> Grid de Imóveis Saltados */}
+          <div className="md:col-span-7 space-y-8">
+            <div className="flex items-center justify-between pb-3">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#3f6f60] block mb-1">
+                  Reserva Direta
                 </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[15px] font-semibold text-[#2D3436]">
-                    {link.label}
-                  </span>
-                  <span className="mt-0.5 block truncate text-xs text-[#6b7686]">{link.note}</span>
-                </span>
-                <ArrowUpRight className="h-4 w-4 shrink-0 text-[#98a3b3]" aria-hidden="true" />
-              </ActionLink>
-            </Reveal>
-          )}
-        </div>
+                <h2 className="text-3xl lg:text-4xl font-semibold tracking-tight text-[#2D3436]">
+                  Imóveis em Destaque
+                </h2>
+              </div>
+              <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#3f6f60] ${SURFACE} ${PRESSED}`}>
+                <span className="h-2 w-2 rounded-full bg-[#3f6f60]" />
+                {properties.length} Opções
+              </div>
+            </div>
 
-        <Reveal delay={0.24} className="mt-14">
-          <h2 className="text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7c8798]">
-            Imóveis em destaque
-          </h2>
-          <div id="imoveis" className="mt-6 space-y-6">
-            {properties.map((property) =>
-            <div key={property.id} className={`overflow-hidden rounded-[30px] p-4 ${SURFACE} ${RAISED}`}>
-                <div className={`overflow-hidden rounded-[22px] ${PRESSED}`}>
-                  <Image
-                  src={property.image}
-                  alt={`${property.name} — ${property.specs}`}
-                  className="h-44 w-full object-cover" />
-                
-                </div>
-                <div className="px-1 pb-1 pt-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[15px] font-semibold text-[#2D3436]">{property.name}</p>
-                      <p className="mt-0.5 text-xs text-[#6b7686]">
+            {/* Grid Desktop de Imóveis (2 Colunas) */}
+            <div id="imoveis-desktop" className="grid grid-cols-2 gap-6">
+              {properties.map((property) => (
+                <div
+                  key={property.id}
+                  className={`overflow-hidden rounded-[32px] p-5 ${SURFACE} ${RAISED_DESK} flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1`}
+                >
+                  <div>
+                    <div className={`overflow-hidden rounded-[24px] ${PRESSED} p-1.5`}>
+                      <Image
+                        src={property.image}
+                        alt={`${property.name} — ${property.specs}`}
+                        className="h-44 w-full object-cover rounded-[20px]"
+                      />
+                    </div>
+                    <div className="px-1 pt-4 space-y-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-base font-semibold text-[#2D3436]">{property.name}</p>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-[#3f6f60]">
+                          {property.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#6b7686]">
                         {property.location} · {property.specs}
                       </p>
                     </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-[15px] font-semibold text-[#3f6f60]">{property.price}</p>
-                      <p className="text-[10px] uppercase tracking-wider text-[#98a3b3]">
-                        {property.unit}
-                      </p>
-                    </div>
                   </div>
-                  <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#7c8798]">
-                    {property.status}
-                  </p>
-                  <a
-                  href={property.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold text-[#3f6f60] ${SURFACE} ${RAISED} ${PRESS_ON_TAP} ${FOCUS}`}>
-                  
-                    Consultar datas
-                    <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-                  </a>
+
+                  <div className="px-1 pt-4 mt-2 border-t border-[#c8cfda]/50 flex items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] uppercase text-[#98a3b3] block">Diária</span>
+                      <p className="text-base font-semibold text-[#3f6f60]">{property.price}</p>
+                    </div>
+                    <a
+                      href={property.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`inline-flex min-h-[44px] items-center gap-1.5 px-4 rounded-xl text-xs font-semibold text-[#3f6f60] ${SURFACE} ${RAISED} ${PRESS_ON_TAP} ${FOCUS}`}
+                    >
+                      <span>Consultar</span>
+                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Rodapé Informativo Neumórfico Inset */}
+            <div className={`rounded-[30px] p-6 text-center ${SURFACE} ${PRESSED} space-y-2`}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7c8798]">
+                {agency.shortTagline}
+              </p>
+              <p className="text-sm text-[#5a6472] max-w-lg mx-auto">
+                {agency.tagline}
+              </p>
+              <p className="text-xs text-[#7c8798] pt-1">
+                {agency.legalName} · {agency.city} · {agency.rating}
+              </p>
+            </div>
+          </div>
+
+          {/* COLUNA DA DIREITA (40%) -> Painel Flutuante Fixo (Sticky) */}
+          <div className="md:col-span-5 md:sticky md:top-8 space-y-6">
+            <div className={`rounded-[36px] p-7 ${SURFACE} ${RAISED_DESK} flex flex-col items-center text-center space-y-6`}>
+              {/* Foto de Perfil Tátil */}
+              <div className="h-24 w-24 overflow-hidden rounded-full border-[5px] border-[#E0E5EC] shadow-[6px_6px_14px_rgba(163,177,198,0.5)]">
+                <Image
+                  src={agency.images.portrait}
+                  alt="Foto de perfil da corretora responsável pelo atendimento"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight text-[#2D3436]">
+                  {agency.name}
+                </h1>
+                <p className="mt-2 text-sm leading-relaxed text-[#5a6472]">
+                  {agency.tagline}
+                </p>
+
+                <div className="mt-4 flex justify-center">
+                  <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#3f6f60] ${SURFACE} ${PRESSED}`}>
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#3f6f60]" />
+                    {agency.response}
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
-        </Reveal>
 
-        <Reveal delay={0.32} className="mt-14">
-          <div className={`rounded-[26px] px-6 py-7 text-center ${SURFACE} ${PRESSED}`}>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7c8798]">
-              {agency.shortTagline}
-            </p>
-            <p className="mt-2 text-sm text-[#5a6472]">
-              {agency.legalName} · {agency.city}
-            </p>
+              {/* Lista de Ações / Links Táteis */}
+              <div className="w-full space-y-3.5">
+                {links.map((link) => (
+                  <ActionLink
+                    key={link.id}
+                    link={link}
+                    onAction={onAction}
+                    className={`flex min-h-[72px] w-full items-center gap-4 rounded-[22px] px-4 text-left transition-all duration-300 ${SURFACE} ${RAISED} ${PRESS_ON_TAP} ${FOCUS}`}
+                  >
+                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[#3f6f60] ${SURFACE} ${PRESSED}`}>
+                      <LinkIcon name={link.icon} className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-[#2D3436]">
+                        {link.label}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs text-[#6b7686]">{link.note}</span>
+                    </span>
+                    <ArrowUpRight className="h-4 w-4 shrink-0 text-[#98a3b3]" aria-hidden="true" />
+                  </ActionLink>
+                ))}
+              </div>
+
+              {/* Informações da Agência */}
+              <div className="w-full pt-3 border-t border-[#c8cfda]/50 text-xs text-[#7c8798]">
+                <p>{agency.legalName} · {agency.city}</p>
+              </div>
+            </div>
           </div>
-        </Reveal>
+        </div>
+
+        {/* ======================================================== */}
+        {/* MOBILE (< md:) -> PRESERVAÇÃO TOTAL DO DESIGN ORIGINAL   */}
+        {/* ======================================================== */}
+        <div className="md:hidden">
+          <Reveal className="mt-8 flex justify-center">
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#3f6f60] ${SURFACE} ${PRESSED}`}>
+              <span className="h-1.5 w-1.5 rounded-full bg-[#3f6f60]" />
+              {agency.response}
+            </div>
+          </Reveal>
+
+          <div className="mt-8 space-y-4">
+            {links.map((link, index) => (
+              <Reveal key={link.id} delay={0.06 + index * 0.04}>
+                <ActionLink
+                  link={link}
+                  onAction={onAction}
+                  className={`flex min-h-[78px] w-full items-center gap-4 rounded-[26px] px-5 text-left transition-shadow duration-300 ${SURFACE} ${RAISED} ${PRESS_ON_TAP} ${FOCUS}`}
+                >
+                  <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-[#3f6f60] ${SURFACE} ${PRESSED}`}>
+                    <LinkIcon name={link.icon} className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-semibold text-[#2D3436]">
+                      {link.label}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs text-[#6b7686]">{link.note}</span>
+                  </span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-[#98a3b3]" aria-hidden="true" />
+                </ActionLink>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={0.24} className="mt-14">
+            <h2 className="text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7c8798]">
+              Imóveis em destaque
+            </h2>
+            <div id="imoveis" className="mt-6 space-y-6">
+              {properties.map((property) => (
+                <div key={property.id} className={`overflow-hidden rounded-[30px] p-4 ${SURFACE} ${RAISED}`}>
+                  <div className={`overflow-hidden rounded-[22px] ${PRESSED}`}>
+                    <Image
+                      src={property.image}
+                      alt={`${property.name} — ${property.specs}`}
+                      className="h-44 w-full object-cover"
+                    />
+                  </div>
+                  <div className="px-1 pb-1 pt-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[15px] font-semibold text-[#2D3436]">{property.name}</p>
+                        <p className="mt-0.5 text-xs text-[#6b7686]">
+                          {property.location} · {property.specs}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-[15px] font-semibold text-[#3f6f60]">{property.price}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-[#98a3b3]">
+                          {property.unit}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#7c8798]">
+                      {property.status}
+                    </p>
+                    <a
+                      href={property.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold text-[#3f6f60] ${SURFACE} ${RAISED} ${PRESS_ON_TAP} ${FOCUS}`}
+                    >
+                      Consultar datas
+                      <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.32} className="mt-14">
+            <div className={`rounded-[26px] px-6 py-7 text-center ${SURFACE} ${PRESSED}`}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7c8798]">
+                {agency.shortTagline}
+              </p>
+              <p className="mt-2 text-sm text-[#5a6472]">
+                {agency.legalName} · {agency.city}
+              </p>
+            </div>
+          </Reveal>
+        </div>
       </div>
-    </div>);
-
+    </div>
+  );
 }

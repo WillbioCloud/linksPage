@@ -10,6 +10,7 @@ const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:rin
 export default function ObsidianTheme({ agency, links, properties, onAction }) {
   return (
     <div className="min-h-screen bg-[#0F0F0F] pb-32 text-[#F3EFE6]">
+      {/* Imagem de Topo Noturna de Luxo */}
       <div className="relative h-[42vh] min-h-[300px] w-full overflow-hidden">
         <Image
           src={agency.images.night}
@@ -19,107 +20,256 @@ export default function ObsidianTheme({ agency, links, properties, onAction }) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/55 to-[#0F0F0F]/25" />
       </div>
 
-      <div className="relative z-10 mx-auto -mt-28 w-full max-w-[680px] px-6">
-        <Reveal>
-          <p className="text-[11px] uppercase tracking-[0.4em] text-[#C5A059]">
-            Coleção 2026 · Caldas Novas e região
-          </p>
-          <h1 className="mt-5 font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
-            {agency.name}
-          </h1>
-          <p className="mt-5 max-w-[46ch] text-[15px] leading-relaxed text-[#F3EFE6]/70">
-            {agency.tagline}
-          </p>
-          <div className="mt-8 h-px w-full origin-left animate-[horizon-x_1.4s_cubic-bezier(0.22,1,0.36,1)_0.2s_both] bg-gradient-to-r from-[#C5A059] to-transparent" />
-        </Reveal>
+      {/* Container Principal */}
+      <div className="relative z-10 mx-auto -mt-28 w-full max-w-[680px] md:max-w-7xl px-6 md:px-8">
+        {/* ======================================================== */}
+        {/* DESKTOP (md: em diante) -> Galeria de Luxo em 2 Colunas  */}
+        {/* ======================================================== */}
+        <div className="hidden md:grid md:grid-cols-12 md:gap-8 lg:gap-10 items-start">
+          {/* COLUNA DA ESQUERDA (60%) -> Mosaico Minimalista & Residências */}
+          <div className="md:col-span-7 space-y-8">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.4em] text-[#C5A059]">
+                Coleção Exclusiva · Caldas Novas e Região
+              </p>
+              <h2 className="mt-3 font-serif text-3xl lg:text-4xl tracking-tight text-[#F3EFE6]">
+                Residências Selecionadas
+              </h2>
+              <div className="mt-4 h-px w-full bg-gradient-to-r from-[#C5A059] to-transparent" />
+            </div>
 
-        <div className="mt-10 grid gap-x-10 sm:grid-cols-2">
-          {links.map((link, index) => (
-            <Reveal key={link.id} delay={0.1 + index * 0.04}>
-              <ActionLink
-                link={link}
-                onAction={onAction}
-                className={`group flex min-h-[68px] w-full items-center gap-4 border-b border-[#C5A059]/20 text-left transition-colors duration-300 hover:border-[#C5A059]/70 ${FOCUS}`}
+            {/* Grid de Propriedades em Mosaico Minimalista (2 Colunas) */}
+            <div id="imoveis-desktop" className="grid grid-cols-2 gap-6">
+              {properties.map((property) => (
+                <article
+                  key={property.id}
+                  className="border border-[#C5A059]/25 bg-[#141414] p-4 flex flex-col justify-between transition-all duration-500 hover:border-[#C5A059]/80 group"
+                >
+                  <div>
+                    <div className="relative overflow-hidden">
+                      <Image
+                        src={property.image}
+                        alt={`${property.name} — ${property.specs}`}
+                        className="h-48 w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <span className="absolute top-3 left-3 bg-[#0F0F0F]/80 backdrop-blur-md border border-[#C5A059]/30 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-[#C5A059]">
+                        {property.status}
+                      </span>
+                    </div>
+
+                    <div className="pt-4 space-y-1">
+                      <h3 className="font-serif text-xl tracking-tight text-[#F3EFE6]">{property.name}</h3>
+                      <p className="text-xs text-[#F3EFE6]/55">
+                        {property.location} · {property.specs}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#C5A059]/15 pt-4">
+                    <div>
+                      <span className="text-[10px] uppercase text-[#F3EFE6]/40 block">Diária</span>
+                      <p className="text-sm font-semibold text-[#D4AF37]">
+                        {property.price}
+                        <span className="text-xs text-[#F3EFE6]/45 ml-1">{property.unit}</span>
+                      </p>
+                    </div>
+                    <a
+                      href={property.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`inline-flex min-h-[40px] items-center gap-1 border border-[#C5A059]/40 hover:border-[#C5A059] px-4 text-xs uppercase tracking-[0.18em] text-[#C5A059] transition-all hover:bg-[#C5A059]/10 ${FOCUS}`}
+                    >
+                      <span>Datas</span>
+                      <ArrowUpRight className="h-3 w-3" />
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Manifesto de Luxo no Rodapé */}
+            <div className="border border-[#C5A059]/20 bg-[#121212] p-7 space-y-3">
+              <p className="text-[11px] uppercase tracking-[0.3em] text-[#C5A059]">
+                Privacidade & Exclusividade
+              </p>
+              <p className="text-sm text-[#F3EFE6]/70 leading-relaxed">
+                {agency.tagline}
+              </p>
+              <p className="text-xs text-[#F3EFE6]/40 pt-2">
+                {agency.legalName} · {agency.city}
+              </p>
+            </div>
+          </div>
+
+          {/* COLUNA DA DIREITA (40%) -> Painel Fixo Elegante (Sticky) */}
+          <div className="md:col-span-5 md:sticky md:top-8 space-y-6">
+            <div className="border border-[#C5A059]/35 bg-[#141414] p-7 rounded-[28px] shadow-2xl space-y-6">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.36em] text-[#C5A059]">
+                  Atendimento Exclusivo
+                </p>
+                <h1 className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#F3EFE6]">
+                  {agency.name}
+                </h1>
+                <p className="mt-3 text-sm leading-relaxed text-[#F3EFE6]/70">
+                  {agency.tagline}
+                </p>
+                <div className="mt-5 h-px w-full bg-gradient-to-r from-[#C5A059] to-transparent" />
+              </div>
+
+              {/* Lista de Ações Numeradas em Ouro */}
+              <div className="space-y-2">
+                {links.map((link, index) => (
+                  <ActionLink
+                    key={link.id}
+                    link={link}
+                    onAction={onAction}
+                    className={`group flex min-h-[64px] w-full items-center gap-4 border-b border-[#C5A059]/20 text-left transition-colors duration-300 hover:border-[#C5A059]/70 ${FOCUS}`}
+                  >
+                    <span className="w-6 shrink-0 font-mono text-xs text-[#C5A059]/70">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center text-[#C5A059]">
+                      <LinkIcon name={link.icon} className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm transition-colors duration-300 group-hover:text-[#D4AF37]">
+                        {link.label}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs text-[#F3EFE6]/45">
+                        {link.note}
+                      </span>
+                    </span>
+                    <ArrowUpRight
+                      className="h-4 w-4 shrink-0 text-[#F3EFE6]/30 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:text-[#C5A059]"
+                      aria-hidden="true"
+                    />
+                  </ActionLink>
+                ))}
+              </div>
+
+              {/* Botão de Destaque da Obsidiana */}
+              <a
+                href={links[0]?.href}
+                target="_blank"
+                rel="noreferrer"
+                className={`flex min-h-[52px] items-center justify-center gap-3 border border-[#C5A059] text-xs uppercase tracking-[0.25em] text-[#C5A059] transition-all duration-500 hover:bg-[#C5A059] hover:text-[#0F0F0F] ${FOCUS}`}
               >
-                <span className="w-6 shrink-0 font-mono text-[11px] text-[#C5A059]/70">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center text-[#C5A059]">
-                  <LinkIcon name={link.icon} className="h-4 w-4" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[15px] transition-colors duration-300 group-hover:text-[#D4AF37]">
-                    {link.label}
-                  </span>
-                  <span className="mt-0.5 block truncate text-xs text-[#F3EFE6]/45">
-                    {link.note}
-                  </span>
-                </span>
-                <ArrowUpRight
-                  className="h-4 w-4 shrink-0 text-[#F3EFE6]/30 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:text-[#C5A059]"
-                  aria-hidden="true"
-                />
-              </ActionLink>
-            </Reveal>
-          ))}
+                Consultar disponibilidade
+              </a>
+
+              <div className="text-center pt-2 text-[11px] uppercase tracking-[0.24em] text-[#F3EFE6]/40">
+                {agency.response} · {agency.rating}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <Reveal delay={0.26} className="mt-16">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-serif text-2xl tracking-tight">Residências selecionadas</h2>
-            <span className="text-[11px] uppercase tracking-[0.28em] text-[#C5A059]">Temporada</span>
-          </div>
-          <div id="imoveis" className="mt-7 grid gap-6 sm:grid-cols-3">
-            {properties.map((property) => (
-              <article
-                key={property.id}
-                className="border border-[#C5A059]/25 p-3 transition-colors duration-500 hover:border-[#C5A059]/70"
-              >
-                <Image
-                  src={property.image}
-                  alt={`${property.name} — ${property.specs}`}
-                  className="h-40 w-full object-cover sm:h-44"
-                />
-                <p className="mt-4 text-[11px] uppercase tracking-[0.24em] text-[#C5A059]">
-                  {property.status}
-                </p>
-                <h3 className="mt-2 font-serif text-lg tracking-tight">{property.name}</h3>
-                <p className="mt-1 text-xs text-[#F3EFE6]/55">
-                  {property.location} · {property.specs}
-                </p>
-                <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#C5A059]/15 pt-3">
-                  <p className="text-sm text-[#D4AF37]">
-                    {property.price}
-                    <span className="text-xs text-[#F3EFE6]/45">{property.unit}</span>
-                  </p>
-                  <a
-                    href={property.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`inline-flex min-h-[40px] items-center gap-1 text-xs uppercase tracking-[0.18em] text-[#C5A059] transition-colors hover:text-[#D4AF37] ${FOCUS}`}
-                  >
-                    Datas
-                  </a>
-                </div>
-              </article>
+        {/* ======================================================== */}
+        {/* MOBILE (< md:) -> PRESERVAÇÃO TOTAL DO DESIGN ORIGINAL   */}
+        {/* ======================================================== */}
+        <div className="md:hidden">
+          <Reveal>
+            <p className="text-[11px] uppercase tracking-[0.4em] text-[#C5A059]">
+              Coleção 2026 · Caldas Novas e região
+            </p>
+            <h1 className="mt-5 font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
+              {agency.name}
+            </h1>
+            <p className="mt-5 max-w-[46ch] text-[15px] leading-relaxed text-[#F3EFE6]/70">
+              {agency.tagline}
+            </p>
+            <div className="mt-8 h-px w-full origin-left animate-[horizon-x_1.4s_cubic-bezier(0.22,1,0.36,1)_0.2s_both] bg-gradient-to-r from-[#C5A059] to-transparent" />
+          </Reveal>
+
+          <div className="mt-10 grid gap-x-10 sm:grid-cols-2">
+            {links.map((link, index) => (
+              <Reveal key={link.id} delay={0.1 + index * 0.04}>
+                <ActionLink
+                  link={link}
+                  onAction={onAction}
+                  className={`group flex min-h-[68px] w-full items-center gap-4 border-b border-[#C5A059]/20 text-left transition-colors duration-300 hover:border-[#C5A059]/70 ${FOCUS}`}
+                >
+                  <span className="w-6 shrink-0 font-mono text-[11px] text-[#C5A059]/70">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center text-[#C5A059]">
+                    <LinkIcon name={link.icon} className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] transition-colors duration-300 group-hover:text-[#D4AF37]">
+                      {link.label}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs text-[#F3EFE6]/45">
+                      {link.note}
+                    </span>
+                  </span>
+                  <ArrowUpRight
+                    className="h-4 w-4 shrink-0 text-[#F3EFE6]/30 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:text-[#C5A059]"
+                    aria-hidden="true"
+                  />
+                </ActionLink>
+              </Reveal>
             ))}
           </div>
-        </Reveal>
 
-        <Reveal delay={0.32} className="mt-14">
-          <a
-            href={links[0].href}
-            target="_blank"
-            rel="noreferrer"
-            className={`flex min-h-[56px] items-center justify-center gap-3 border border-[#C5A059] text-[11px] uppercase tracking-[0.28em] text-[#C5A059] transition-colors duration-500 hover:bg-[#C5A059] hover:text-[#0F0F0F] ${FOCUS}`}
-          >
-            Consultar disponibilidade
-          </a>
-        </Reveal>
+          <Reveal delay={0.26} className="mt-16">
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 className="font-serif text-2xl tracking-tight">Residências selecionadas</h2>
+              <span className="text-[11px] uppercase tracking-[0.28em] text-[#C5A059]">Temporada</span>
+            </div>
+            <div id="imoveis" className="mt-7 grid gap-6 sm:grid-cols-3">
+              {properties.map((property) => (
+                <article
+                  key={property.id}
+                  className="border border-[#C5A059]/25 p-3 transition-colors duration-500 hover:border-[#C5A059]/70"
+                >
+                  <Image
+                    src={property.image}
+                    alt={`${property.name} — ${property.specs}`}
+                    className="h-40 w-full object-cover sm:h-44"
+                  />
+                  <p className="mt-4 text-[11px] uppercase tracking-[0.24em] text-[#C5A059]">
+                    {property.status}
+                  </p>
+                  <h3 className="mt-2 font-serif text-lg tracking-tight">{property.name}</h3>
+                  <p className="mt-1 text-xs text-[#F3EFE6]/55">
+                    {property.location} · {property.specs}
+                  </p>
+                  <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#C5A059]/15 pt-3">
+                    <p className="text-sm text-[#D4AF37]">
+                      {property.price}
+                      <span className="text-xs text-[#F3EFE6]/45">{property.unit}</span>
+                    </p>
+                    <a
+                      href={property.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`inline-flex min-h-[40px] items-center gap-1 text-xs uppercase tracking-[0.18em] text-[#C5A059] transition-colors hover:text-[#D4AF37] ${FOCUS}`}
+                    >
+                      Datas
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </Reveal>
 
-        <Reveal delay={0.36} className="mt-10 pb-2 text-center text-[11px] uppercase tracking-[0.3em] text-[#F3EFE6]/35">
-          {agency.legalName} · {agency.city}
-        </Reveal>
+          <Reveal delay={0.32} className="mt-14">
+            <a
+              href={links[0]?.href}
+              target="_blank"
+              rel="noreferrer"
+              className={`flex min-h-[56px] items-center justify-center gap-3 border border-[#C5A059] text-[11px] uppercase tracking-[0.28em] text-[#C5A059] transition-colors duration-500 hover:bg-[#C5A059] hover:text-[#0F0F0F] ${FOCUS}`}
+            >
+              Consultar disponibilidade
+            </a>
+          </Reveal>
+
+          <Reveal delay={0.36} className="mt-10 pb-2 text-center text-[11px] uppercase tracking-[0.3em] text-[#F3EFE6]/35">
+            {agency.legalName} · {agency.city}
+          </Reveal>
+        </div>
       </div>
     </div>
   );
