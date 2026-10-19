@@ -581,10 +581,7 @@ export default function Admin() {
             <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                Número do WhatsApp para Reservas
-              </span>
-              <span className="text-[11px] text-emerald-400 font-medium">
-                formatação automática
+                WhatsApp para Reservas
               </span>
             </label>
             <div className="relative">
@@ -597,7 +594,6 @@ export default function Admin() {
               />
             </div>
             <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400 pt-0.5 gap-1">
-              <span>Digite apenas o DDD e o número (ex: 64 99999-9999).</span>
               <span className="text-slate-500 font-mono text-[10px]">
                 Link gerado: {formData.link_whatsapp || "https://wa.me/5564999999999"}
               </span>
@@ -739,7 +735,7 @@ export default function Admin() {
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white font-bold text-xs tracking-wide shadow-lg shadow-sky-500/20 active:scale-95 transition-all disabled:opacity-50"
             >
               <UploadCloud className="w-4 h-4" />
-              <span>{isUploading ? "Enviando..." : "📸 Adicionar Fotos da Galeria"}</span>
+              <span>{isUploading ? "Enviando..." : "Adicionar Fotos da Galeria"}</span>
             </button>
           </div>
 
