@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://homeparaiso.com.br/</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&amp;fit=crop&amp;w=1200&amp;q=80</image:loc>
+      <image:title>Home Paraíso Caldas Novas - Casa de Temporada com Piscina Aquecida</image:title>
+      <image:caption>Casa de temporada completa e exclusiva para aluguel em Caldas Novas GO</image:caption>
+    </image:image>
+  </url>
+</urlset>

@@ -32,6 +32,7 @@ import AirbnbGallery from "@/components/AirbnbGallery";
 import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 import Image from "@/components/ui/image";
 import Logo from "@/components/Logo";
+import SEO from "@/components/SEO";
 
 // Variantes leves e aceleradas por GPU (apenas transform e opacity para 60fps constantes)
 const fadeInUp = {
@@ -191,6 +192,9 @@ export default function Home() {
     <div
       className={`min-h-screen selection:bg-blue-500 selection:text-white ${theme.bgClass} pb-28 sm:pb-16 md:pb-12 transition-colors duration-500 relative`}
     >
+      {/* Componente SEO Dinâmico (Metatags, OpenGraph e Schema.org) */}
+      <SEO property={effectiveProperty} faqs={faqs} />
+
       {/* Barra de Progresso de Rolagem Ultra-Leve no Topo */}
       <motion.div
         style={{ scaleX }}
@@ -486,7 +490,7 @@ export default function Home() {
             >
               <Image
                 src={heroImage}
-                alt={property.titulo}
+                alt={`${property.titulo} - Casa de temporada com piscina aquecida em Caldas Novas`}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="eager"
               />
@@ -562,7 +566,7 @@ export default function Home() {
                     >
                       <Image
                         src={thumb}
-                        alt={`Miniatura ${index + 1}`}
+                        alt={`${property.titulo} em Caldas Novas - Miniatura ${index + 1}`}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                       {isLast && (

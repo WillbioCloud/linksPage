@@ -107,7 +107,7 @@ export default function PhotoCarousel({
             >
               <Image
                 src={imgUrl}
-                alt={`${propertyTitle} - Foto ${index + 1}`}
+                alt={`${propertyTitle} em Caldas Novas - Área de lazer e descanso foto ${index + 1}`}
                 className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 loading={index === 0 ? "eager" : "lazy"}
               />
@@ -196,7 +196,7 @@ export default function PhotoCarousel({
             >
               <Image
                 src={img}
-                alt={`Miniatura ${i + 1}`}
+                alt={`${propertyTitle} - Miniatura ${i + 1}`}
                 className="w-full h-full object-cover"
               />
             </button>
@@ -223,7 +223,7 @@ export default function PhotoCarousel({
           <div className="relative flex-1 flex items-center justify-center my-4 overflow-hidden">
             <img
               src={imagens[activeIndex]}
-              alt={`${propertyTitle} - Foto ampliada ${activeIndex + 1}`}
+              alt={`${propertyTitle} em Caldas Novas - Foto ampliada ${activeIndex + 1}`}
               className="max-h-[85vh] max-w-[95vw] object-contain rounded-2xl shadow-2xl"
             />
 
@@ -260,7 +260,11 @@ export default function PhotoCarousel({
                     : "border-transparent opacity-40 hover:opacity-80"
                 }`}
               >
-                <img src={img} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={img}
+                  alt={`${propertyTitle} - Miniatura ampliada ${i + 1}`}
+                  className="w-full h-full object-cover"
+                />
               </button>
             ))}
           </div>

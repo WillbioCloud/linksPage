@@ -65,7 +65,7 @@ export default function AirbnbGallery({
         >
           <Image
             src={heroImage}
-            alt={`${propertyTitle} - Foto Principal`}
+            alt={`${propertyTitle} - Casa de temporada com piscina aquecida em Caldas Novas - Foto Principal`}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading="eager"
           />
@@ -90,7 +90,7 @@ export default function AirbnbGallery({
             >
               <Image
                 src={img}
-                alt={`${propertyTitle} - Foto ${actualIndex + 1}`}
+                alt={`${propertyTitle} em Caldas Novas - Detalhes da acomodação foto ${actualIndex + 1}`}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 loading="lazy"
               />
@@ -148,7 +148,7 @@ export default function AirbnbGallery({
           <div className="relative flex-1 flex items-center justify-center my-4 overflow-hidden max-w-7xl mx-auto w-full">
             <img
               src={imagens[activeIndex]}
-              alt={`${propertyTitle} - Foto ampliada ${activeIndex + 1}`}
+              alt={`${propertyTitle} em Caldas Novas - Imagem ${activeIndex + 1} em alta resolução`}
               className="max-h-[80vh] max-w-[92vw] object-contain rounded-2xl shadow-2xl transition-all duration-300"
             />
 
@@ -187,7 +187,11 @@ export default function AirbnbGallery({
                     : "border-transparent opacity-40 hover:opacity-80"
                 }`}
               >
-                <img src={img} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={img}
+                  alt={`${propertyTitle} - Miniatura ${i + 1}`}
+                  className="w-full h-full object-cover"
+                />
               </button>
             ))}
           </div>
