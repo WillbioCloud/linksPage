@@ -22,13 +22,46 @@ import {
   Maximize2,
   Users,
   Calendar,
+  ArrowUp,
 } from "lucide-react";
+import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { subscribeToProperty, DEFAULT_PROPERTY } from "@/lib/firebase";
 import { getTheme } from "@/lib/themeStyles";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 import Image from "@/components/ui/image";
 import Logo from "@/components/Logo";
+
+// Variantes leves e aceleradas por GPU (apenas transform e opacity para 60fps constantes)
+const fadeInUp = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
+    },
+  },
+};
+
+const cardItem = {
+  hidden: { opacity: 0, y: 16, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 export default function Home() {
   const [property, setProperty] = useState(DEFAULT_PROPERTY);
@@ -37,8 +70,24 @@ export default function Home() {
   const [activeFaq, setActiveFaq] = useState(null);
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
   const [galleryTarget, setGalleryTarget] = useState(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
   const calendarSectionRef = useRef(null);
   const gallerySectionRef = useRef(null);
+
+  // Barra de progresso de scroll suave no topo sem impacto em desempenho
+  const { scrollYProgress, scrollY } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  useEffect(() => {
+    return scrollY.on("change", (latest) => {
+      setShowScrollTop(latest > 350);
+    });
+  }, [scrollY]);
 
   useEffect(() => {
     const unsubscribe = subscribeToProperty(
@@ -69,7 +118,7 @@ export default function Home() {
   const amenities = [
     {
       icon: Flame,
-      title: "Piscina Aquecida Privativa",
+      title: "Piscina Aquecida",
       desc: "Água quente com cascata para relaxar a qualquer hora",
     },
     {
@@ -89,7 +138,7 @@ export default function Home() {
     },
     {
       icon: Car,
-      title: "Garagem Privativa Coberta",
+      title: "Garagem Coberta",
       desc: "Estacionamento seguro com portão automático",
     },
     {
@@ -105,8 +154,8 @@ export default function Home() {
       a: "O check-in padrão é a partir das 14:00 e o check-out até às 11:00. Caso precise de horários flexíveis, converse diretamente pelo WhatsApp para verificar disponibilidade.",
     },
     {
-      q: "A piscina é realmente aquecida e privativa?",
-      a: "Sim! A piscina é 100% privativa e exclusiva do seu grupo, contando com aquecimento térmico constante e cascata.",
+      q: "A piscina é realmente aquecida?",
+      a: "Sim! A piscina conta com aquecimento térmico constante e cascata.",
     },
     {
       q: "Como funciona a reserva direta?",
@@ -120,7 +169,7 @@ export default function Home() {
 
   const scrollToCalendar = () => {
     if (calendarSectionRef.current) {
-      calendarSectionRef.current.scrollIntoView({ behavior: "smooth" });
+      calendarSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       setCalendarModalOpen(true);
     }
@@ -133,27 +182,49 @@ export default function Home() {
     }
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div
-      className={`min-h-screen selection:bg-blue-500 selection:text-white ${theme.bgClass} pb-28 sm:pb-16 transition-colors duration-500`}
+      className={`min-h-screen selection:bg-blue-500 selection:text-white ${theme.bgClass} pb-28 sm:pb-16 transition-colors duration-500 relative`}
     >
-      {/* Container Principal Centralizado (com a largura e elegância do App Resort da imagem) */}
+      {/* Barra de Progresso de Rolagem Ultra-Leve no Topo */}
+      <motion.div
+        style={{ scaleX }}
+        className={`fixed top-0 left-0 right-0 h-1 origin-left z-50 ${theme.accentBg || "bg-blue-600"} shadow-sm`}
+      />
+
+      {/* Container Principal Centralizado */}
       <div className={theme.containerClass}>
-        {/* Top Header Simplificado */}
-        <header className="flex items-center pb-5 pt-2">
+        {/* Top Header Simplificado com Entrada Suave */}
+        <motion.header
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="flex items-center pb-5 pt-2"
+        >
           <div className="flex items-center gap-2.5">
-            <Logo className={`w-7 h-7 sm:w-8 sm:h-8 ${theme.accentText} shrink-0 transition-transform duration-300 hover:scale-110`} />
+            <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}>
+              <Logo className={`w-7 h-7 sm:w-8 sm:h-8 ${theme.accentText} shrink-0`} />
+            </motion.div>
             <span className="font-extrabold text-base sm:text-lg tracking-tight">
               {property.titulo}
             </span>
           </div>
-        </header>
+        </motion.header>
 
         {/* ======================================================== */}
-        {/* CARD PRINCIPAL HERO (INSPIRADO DIRETAMENTE NA IMAGEM)     */}
+        {/* CARD PRINCIPAL HERO                                      */}
         {/* ======================================================== */}
-        <section className={`relative overflow-hidden ${theme.heroCardClass}`}>
-          {/* Imagem de Capa Grande (ao clicar, desce para a galeria) */}
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className={`relative overflow-hidden ${theme.heroCardClass}`}
+        >
+          {/* Imagem de Capa Grande (ao clicar, desce suave para a galeria) */}
           <div
             onClick={() => scrollToGallery(0)}
             role="button"
@@ -178,25 +249,40 @@ export default function Home() {
 
             {/* Localização e Título no topo e centro da imagem */}
             <div className="absolute top-5 left-5 right-5 flex items-center justify-between pointer-events-none">
-              <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/20 text-xs font-semibold">
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15, duration: 0.4 }}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/20 text-xs font-semibold"
+              >
                 <MapPin className="w-3.5 h-3.5 text-blue-400" />
                 <span>{property.cidade || "Caldas Novas · GO"}</span>
-              </div>
+              </motion.div>
 
-              <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md text-amber-300 border border-white/20 text-xs font-black">
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15, duration: 0.4 }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md text-amber-300 border border-white/20 text-xs font-black"
+              >
                 <Star className="w-3.5 h-3.5 fill-amber-300" />
                 <span>4.98</span>
-              </div>
+              </motion.div>
             </div>
 
-            {/* Título e Pill Flutuante de Preço na parte inferior da foto (exatamente como na imagem) */}
+            {/* Título e Pill Flutuante de Preço na parte inferior da foto */}
             <div className="absolute bottom-5 left-5 right-5 space-y-3">
               <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">
                 {property.titulo}
               </h1>
 
               {/* Floating Pill com Diária */}
-              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-black/55 backdrop-blur-xl border border-white/20 text-white shadow-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.4 }}
+                className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-black/55 backdrop-blur-xl border border-white/20 text-white shadow-2xl"
+              >
                 <div className="pl-2">
                   <span className="text-[10px] uppercase font-bold text-white/70 block">
                     Diária da temporada
@@ -209,11 +295,11 @@ export default function Home() {
                 <div className="px-4 py-2 rounded-xl bg-white text-slate-900 font-black text-base sm:text-lg shadow-lg">
                   {property.valor_diaria}
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
 
-          {/* Miniaturas das Fotos logo abaixo da imagem principal (ao clicar, desce para a galeria) */}
+          {/* Miniaturas das Fotos com micro-interações suaves */}
           {thumbnails.length > 0 && (
             <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-2.5 pb-2 px-1">
               {thumbnails.map((thumb, index) => {
@@ -221,12 +307,14 @@ export default function Home() {
                 const thumbActualIndex = index + 1;
 
                 return (
-                  <button
+                  <motion.button
                     key={index}
                     type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => scrollToGallery(thumbActualIndex)}
                     title={`Ver foto ${thumbActualIndex + 1} na galeria completa`}
-                    className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden group shadow-sm min-w-0 w-full focus:outline-none transition-all duration-300 hover:opacity-90 active:scale-95"
+                    className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden group shadow-sm min-w-0 w-full focus:outline-none transition-opacity duration-300 hover:opacity-90"
                   >
                     <Image
                       src={thumb}
@@ -238,19 +326,28 @@ export default function Home() {
                         +{images.length - 4} Mais
                       </div>
                     )}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
           )}
-        </section>
+        </motion.section>
 
         {/* ======================================================== */}
         {/* DESTAQUES DA ESTRUTURA (QUARTOS, SUÍTES, BANHEIROS, VAGAS) */}
         {/* ======================================================== */}
-        <section className="grid grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-5">
-          <div
-            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-transform duration-300 hover:scale-[1.02]`}
+        <motion.section
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          className="grid grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-5"
+        >
+          <motion.div
+            variants={cardItem}
+            whileHover={{ y: -3, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-shadow duration-300 hover:shadow-md`}
           >
             <BedDouble className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
             <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
@@ -259,10 +356,13 @@ export default function Home() {
             <span className="text-[10px] sm:text-xs opacity-60 font-semibold leading-tight">
               {Number(property.quartos ?? 3) === 1 ? "Quarto" : "Quartos"}
             </span>
-          </div>
+          </motion.div>
 
-          <div
-            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-transform duration-300 hover:scale-[1.02]`}
+          <motion.div
+            variants={cardItem}
+            whileHover={{ y: -3, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-shadow duration-300 hover:shadow-md`}
           >
             <Sparkles className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
             <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
@@ -271,10 +371,13 @@ export default function Home() {
             <span className="text-[10px] sm:text-xs opacity-60 font-semibold leading-tight">
               {Number(property.suites ?? 1) === 1 ? "Suíte" : "Suítes"}
             </span>
-          </div>
+          </motion.div>
 
-          <div
-            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-transform duration-300 hover:scale-[1.02]`}
+          <motion.div
+            variants={cardItem}
+            whileHover={{ y: -3, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-shadow duration-300 hover:shadow-md`}
           >
             <Bath className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
             <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
@@ -283,10 +386,13 @@ export default function Home() {
             <span className="text-[10px] sm:text-xs opacity-60 font-semibold leading-tight">
               {Number(property.banheiros ?? 3) === 1 ? "Banheiro" : "Banheiros"}
             </span>
-          </div>
+          </motion.div>
 
-          <div
-            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-transform duration-300 hover:scale-[1.02]`}
+          <motion.div
+            variants={cardItem}
+            whileHover={{ y: -3, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-shadow duration-300 hover:shadow-md`}
           >
             <Car className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
             <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
@@ -295,13 +401,19 @@ export default function Home() {
             <span className="text-[10px] sm:text-xs opacity-60 font-semibold leading-tight">
               {Number(property.vagas_garagem ?? 2) === 1 ? "Vaga" : "Vagas"}
             </span>
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
         {/* ======================================================== */}
         {/* DESCRIÇÃO E BOTÃO PRINCIPAL "NEXT / DISPONIBILIDADE"     */}
         {/* ======================================================== */}
-        <section className={`p-6 sm:p-7 rounded-[32px] space-y-5 mt-4 sm:mt-5 ${theme.cardClass}`}>
+        <motion.section
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          className={`p-6 sm:p-7 rounded-[32px] space-y-5 mt-4 sm:mt-5 ${theme.cardClass}`}
+        >
           <div className="space-y-2">
             <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
               <span>Descrição</span>
@@ -321,25 +433,34 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Botão Principal Estilo Imagem de Referência */}
-          <button
+          {/* Botão Principal com Micro-Interação */}
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.015 }}
+            whileTap={{ scale: 0.98 }}
             onClick={scrollToCalendar}
             className={`w-full py-4 px-6 rounded-2xl text-base font-black flex items-center justify-center gap-2 tracking-wide shadow-lg ${theme.buttonPrimary}`}
           >
             <Calendar className="w-5 h-5" />
             <span>Ver Disponibilidade</span>
-          </button>
-        </section>
+          </motion.button>
+        </motion.section>
 
         {/* ======================================================== */}
-        {/* CALENDÁRIO DE DISPONIBILIDADE & OPÇÕES (TELA DIREITA)    */}
+        {/* CALENDÁRIO DE DISPONIBILIDADE & OPÇÕES                    */}
         {/* ======================================================== */}
         {property.mostrar_calendario !== false && (
-          <section ref={calendarSectionRef} className="pt-6 space-y-3">
+          <motion.section
+            ref={calendarSectionRef}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="pt-6 space-y-3 scroll-mt-6"
+          >
             <div className="flex items-center justify-between px-2">
               <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
-                <CalendarCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <CalendarCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 <span>Calendário de Disponibilidade</span>
               </h2>
               <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
@@ -348,13 +469,21 @@ export default function Home() {
             </div>
 
             <AvailabilityCalendar property={effectiveProperty} theme={theme} />
-          </section>
+          </motion.section>
         )}
 
         {/* ======================================================== */}
         {/* CARROSSEL COMPLETO DE FOTOS                              */}
         {/* ======================================================== */}
-        <section ref={gallerySectionRef} id="galeria" className="pt-8 space-y-3 scroll-mt-6">
+        <motion.section
+          ref={gallerySectionRef}
+          id="galeria"
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          className="pt-8 space-y-3 scroll-mt-6"
+        >
           <div className="flex items-center justify-between px-2">
             <h2 className="text-lg font-black tracking-tight">Galeria Completa</h2>
             <span className="text-xs opacity-60">Arraste para o lado ⇄</span>
@@ -366,12 +495,18 @@ export default function Home() {
             propertyTitle={property.titulo}
             targetPhoto={galleryTarget}
           />
-        </section>
+        </motion.section>
 
         {/* ======================================================== */}
         {/* COMODIDADES E ESTRUTURA                                 */}
         {/* ======================================================== */}
-        <section className="pt-8 space-y-4">
+        <motion.section
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          className="pt-8 space-y-4"
+        >
           <div className="space-y-1 px-1">
             <span className={`text-xs uppercase font-extrabold tracking-wider ${theme.accentText}`}>
               Estrutura Aconchegante
@@ -379,13 +514,21 @@ export default function Home() {
             <h2 className="text-2xl font-black tracking-tight">O que você vai encontrar</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3.5"
+          >
             {amenities.map((item, idx) => {
               const Icon = item.icon;
               return (
-                <div
+                <motion.div
                   key={idx}
-                  className={`p-4 sm:p-5 rounded-2xl flex items-start gap-3.5 ${theme.cardClass}`}
+                  variants={cardItem}
+                  whileHover={{ y: -3, scale: 1.01 }}
+                  className={`p-4 sm:p-5 rounded-2xl flex items-start gap-3.5 ${theme.cardClass} transition-shadow duration-300 hover:shadow-md`}
                 >
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${theme.pillClass}`}
@@ -396,16 +539,22 @@ export default function Home() {
                     <h3 className="font-bold text-sm tracking-tight">{item.title}</h3>
                     <p className="text-xs opacity-75 mt-0.5 leading-relaxed">{item.desc}</p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
         {/* ======================================================== */}
-        {/* PERGUNTAS FREQUENTES (FAQ)                              */}
+        {/* PERGUNTAS FREQUENTES (FAQ COM TRANSIÇÃO SUAVE)           */}
         {/* ======================================================== */}
-        <section className="pt-8 space-y-4">
+        <motion.section
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          className="pt-8 space-y-4"
+        >
           <div className="space-y-1 px-1">
             <span className={`text-xs uppercase font-extrabold tracking-wider ${theme.accentText}`}>
               Dúvidas Comuns
@@ -414,40 +563,58 @@ export default function Home() {
           </div>
 
           <div className="space-y-2.5">
-            {faqs.map((faq, index) => (
-              <div
-                key={index}
-                className={`rounded-2xl border transition-all overflow-hidden ${theme.cardClass}`}
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveFaq(activeFaq === index ? null : index)}
-                  className="w-full flex items-center justify-between p-4 sm:p-5 text-left text-sm font-bold"
+            {faqs.map((faq, index) => {
+              const isOpen = activeFaq === index;
+              return (
+                <motion.div
+                  key={index}
+                  variants={cardItem}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  className={`rounded-2xl border transition-all overflow-hidden ${theme.cardClass}`}
                 >
-                  <span>{faq.q}</span>
-                  <ChevronDown
-                    className={`w-4 h-4 shrink-0 transition-transform duration-300 opacity-60 ${
-                      activeFaq === index ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {activeFaq === index && (
-                  <div className="px-5 pb-5 text-xs sm:text-sm opacity-80 leading-relaxed border-t border-black/5 dark:border-white/10 pt-3">
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            ))}
+                  <button
+                    type="button"
+                    onClick={() => setActiveFaq(isOpen ? null : index)}
+                    className="w-full flex items-center justify-between p-4 sm:p-5 text-left text-sm font-bold"
+                  >
+                    <span>{faq.q}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 shrink-0 transition-transform duration-300 opacity-60 ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        key="faq-content"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden border-t border-black/5 dark:border-white/10"
+                      >
+                        <div className="px-5 pb-5 pt-3 text-xs sm:text-sm opacity-80 leading-relaxed">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })}
           </div>
-        </section>
+        </motion.section>
 
-        {/* Rodapé com Link do Admin */}
+        {/* Rodapé com Informações */}
         <footer className="pt-12 pb-28 sm:pb-8 text-center space-y-3 opacity-70 text-xs">
           <p>© 2026 {property.titulo} · Caldas Novas, GO.</p>
         </footer>
       </div>
 
-      {/* Modal / Bottom Sheet do Calendário (se aberto via clique direto) */}
+      {/* Modal / Bottom Sheet do Calendário */}
       {calendarModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
           <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-t-[36px] sm:rounded-[36px] bg-transparent animate-in slide-in-from-bottom-5">
@@ -461,8 +628,32 @@ export default function Home() {
         </div>
       )}
 
-      {/* Barra Inferior Fixa para Celular */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 p-3 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-2xl">
+      {/* Botão Flutuante Voltar ao Topo (Suave e Discreto) */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            type="button"
+            onClick={scrollToTop}
+            initial={{ opacity: 0, scale: 0.7, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.7, y: 15 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Voltar ao topo"
+            className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 z-40 p-3 rounded-full bg-slate-900/85 hover:bg-slate-900 text-white dark:bg-white/90 dark:hover:bg-white dark:text-slate-900 shadow-xl backdrop-blur-md border border-white/20 transition-colors"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Barra Inferior Fixa para Celular com Animação */}
+      <motion.div
+        initial={{ y: 80 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-40 p-3 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-2xl"
+      >
         <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
           <div>
             <span className="text-[10px] uppercase font-bold opacity-60 block">Diária</span>
@@ -471,16 +662,18 @@ export default function Home() {
             </span>
           </div>
 
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
             onClick={scrollToCalendar}
             className={`flex-1 py-3 px-4 rounded-xl text-sm font-black flex items-center justify-center gap-2 shadow-md ${theme.buttonPrimary}`}
           >
             <Calendar className="w-4 h-4" />
             <span>Ver Disponibilidade</span>
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
