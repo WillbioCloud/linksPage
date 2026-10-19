@@ -26,6 +26,8 @@ export const THEMES_CONFIG = {
       "bg-white rounded-[38px] p-2 sm:p-2.5 shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-200/80",
     cardClass:
       "bg-white rounded-[28px] border border-slate-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.04)] text-slate-800",
+    statCardClass:
+      "bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_15px_rgba(0,0,0,0.04)] text-slate-800",
     cardHighlightClass:
       "bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 shadow-md text-slate-900",
     floatingPillClass:
@@ -49,6 +51,8 @@ export const THEMES_CONFIG = {
       "rounded-[38px] border border-white/25 bg-white/10 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,40,66,0.5)] p-2",
     cardClass:
       "rounded-[28px] border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,40,66,0.35)] text-white",
+    statCardClass:
+      "rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_20px_rgba(0,40,66,0.3)] text-white",
     cardHighlightClass:
       "rounded-[28px] border border-[#00B4D8]/40 bg-[#00B4D8]/15 backdrop-blur-xl shadow-[0_16px_40px_rgba(0,180,216,0.25)] text-white",
     floatingPillClass:
@@ -72,6 +76,8 @@ export const THEMES_CONFIG = {
       "bg-[#E0E5EC] rounded-[38px] p-3 shadow-[8px_8px_18px_#a3b1c6,-8px_-8px_18px_#ffffff]",
     cardClass:
       "bg-[#E0E5EC] rounded-[28px] shadow-[6px_6px_14px_#a3b1c6,-6px_-6px_14px_#ffffff] text-[#2D3436]",
+    statCardClass:
+      "bg-[#E0E5EC] rounded-2xl shadow-[5px_5px_10px_#a3b1c6,-5px_-5px_10px_#ffffff] text-[#2D3436] border-none",
     cardHighlightClass:
       "bg-[#E0E5EC] rounded-[28px] shadow-[inset_4px_4px_8px_#a3b1c6,inset_-4px_-4px_8px_#ffffff] text-[#2D3436]",
     floatingPillClass:
@@ -96,6 +102,8 @@ export const THEMES_CONFIG = {
       "bg-[#141414] rounded-[38px] p-2 border border-[#C5A059]/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)]",
     cardClass:
       "bg-[#141414] rounded-[26px] border border-[#C5A059]/25 shadow-xl text-[#F3EFE6]",
+    statCardClass:
+      "bg-[#141414] rounded-2xl border border-[#C5A059]/30 shadow-lg text-[#F3EFE6]",
     cardHighlightClass:
       "bg-gradient-to-br from-[#1c1913] to-[#0f0f0f] rounded-[26px] border border-[#C5A059]/50 shadow-2xl text-[#F3EFE6]",
     floatingPillClass:
@@ -119,6 +127,8 @@ export const THEMES_CONFIG = {
       "bg-white rounded-none border-3 border-black p-2.5 shadow-[7px_7px_0_0_#000]",
     cardClass:
       "bg-white rounded-none border-2 border-black shadow-[5px_5px_0_0_#000] text-black",
+    statCardClass:
+      "bg-white rounded-none border-2 border-black shadow-[3px_3px_0_0_#000] text-black",
     cardHighlightClass:
       "bg-[#FFC24B] rounded-none border-2 border-black shadow-[6px_6px_0_0_#000] text-black",
     floatingPillClass:
@@ -142,6 +152,8 @@ export const THEMES_CONFIG = {
       "bg-white/80 backdrop-blur-xl rounded-[38px] p-2.5 border border-[#4A5D4E]/20 shadow-[0_16px_40px_rgba(74,93,78,0.12)]",
     cardClass:
       "bg-white/80 backdrop-blur-xl rounded-[28px] border border-[#4A5D4E]/15 shadow-[0_10px_30px_rgba(74,93,78,0.08)] text-[#2A3B2E]",
+    statCardClass:
+      "bg-white/80 backdrop-blur-xl rounded-2xl border border-[#4A5D4E]/20 shadow-[0_6px_16px_rgba(74,93,78,0.08)] text-[#2A3B2E]",
     cardHighlightClass:
       "bg-[#4A5D4E] text-[#E8EAE3] rounded-[28px] border border-[#4A5D4E]/30 shadow-xl",
     floatingPillClass:
@@ -165,6 +177,8 @@ export const THEMES_CONFIG = {
       "bg-[#FFF3E2] rounded-[38px] p-2.5 border-2 border-[#14484B] shadow-[6px_6px_0_0_#FFC24B]",
     cardClass:
       "bg-[#FFF3E2] rounded-[28px] border-2 border-[#14484B] shadow-[5px_5px_0_0_#FFC24B] text-[#14484B]",
+    statCardClass:
+      "bg-[#FFF3E2] rounded-2xl border-2 border-[#14484B] shadow-[3px_3px_0_0_#FFC24B] text-[#14484B]",
     cardHighlightClass:
       "bg-[#14484B] text-[#FFF3E2] rounded-[28px] border-2 border-[#14484B] shadow-[6px_6px_0_0_#FF6B4A]",
     floatingPillClass:
@@ -188,6 +202,8 @@ export const THEMES_CONFIG = {
       "bg-sky-950/40 border border-sky-400/30 backdrop-blur-2xl rounded-[38px] p-2 shadow-2xl",
     cardClass:
       "bg-sky-950/40 border border-sky-400/20 backdrop-blur-xl shadow-xl rounded-[28px] text-white",
+    statCardClass:
+      "bg-sky-950/40 border border-sky-400/25 backdrop-blur-xl shadow-lg rounded-2xl text-white",
     cardHighlightClass:
       "bg-gradient-to-br from-sky-900/60 to-slate-900/80 border border-sky-400/40 rounded-[28px] shadow-2xl text-white",
     floatingPillClass:
@@ -211,6 +227,8 @@ export const THEMES_CONFIG = {
       "bg-emerald-950/40 border border-emerald-400/30 backdrop-blur-2xl rounded-[38px] p-2 shadow-2xl",
     cardClass:
       "bg-emerald-950/40 border border-emerald-400/20 backdrop-blur-xl shadow-xl rounded-[28px] text-white",
+    statCardClass:
+      "bg-emerald-950/40 border border-emerald-400/25 backdrop-blur-xl shadow-lg rounded-2xl text-white",
     cardHighlightClass:
       "bg-gradient-to-br from-emerald-900/60 to-zinc-900/80 border border-emerald-400/40 rounded-[28px] shadow-2xl text-white",
     floatingPillClass:
@@ -234,6 +252,8 @@ export const THEMES_CONFIG = {
       "bg-zinc-900/70 border border-[#d4af37]/35 backdrop-blur-2xl rounded-[38px] p-2 shadow-2xl",
     cardClass:
       "bg-zinc-900/60 border border-[#d4af37]/25 backdrop-blur-xl shadow-xl rounded-[28px] text-[#f5f5f4]",
+    statCardClass:
+      "bg-zinc-900/70 border border-[#d4af37]/30 backdrop-blur-xl shadow-lg rounded-2xl text-[#f5f5f4]",
     cardHighlightClass:
       "bg-gradient-to-br from-zinc-900/90 to-black border border-[#d4af37]/45 rounded-[28px] shadow-2xl text-[#f5f5f4]",
     floatingPillClass:

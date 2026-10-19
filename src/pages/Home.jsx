@@ -250,7 +250,7 @@ export default function Home() {
         {/* ======================================================== */}
         <section className="grid grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-5">
           <div
-            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 rounded-2xl ${theme.cardClass} text-center shadow-sm border border-slate-200/60 dark:border-white/10 transition-transform duration-300 hover:scale-[1.02]`}
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-transform duration-300 hover:scale-[1.02]`}
           >
             <BedDouble className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
             <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
@@ -262,7 +262,7 @@ export default function Home() {
           </div>
 
           <div
-            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 rounded-2xl ${theme.cardClass} text-center shadow-sm border border-slate-200/60 dark:border-white/10 transition-transform duration-300 hover:scale-[1.02]`}
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-transform duration-300 hover:scale-[1.02]`}
           >
             <Sparkles className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
             <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
@@ -274,7 +274,7 @@ export default function Home() {
           </div>
 
           <div
-            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 rounded-2xl ${theme.cardClass} text-center shadow-sm border border-slate-200/60 dark:border-white/10 transition-transform duration-300 hover:scale-[1.02]`}
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-transform duration-300 hover:scale-[1.02]`}
           >
             <Bath className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
             <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
@@ -286,7 +286,7 @@ export default function Home() {
           </div>
 
           <div
-            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 rounded-2xl ${theme.cardClass} text-center shadow-sm border border-slate-200/60 dark:border-white/10 transition-transform duration-300 hover:scale-[1.02]`}
+            className={`flex flex-col items-center justify-center py-2.5 px-1 sm:py-3.5 sm:px-3 ${theme.statCardClass || theme.cardClass} text-center transition-transform duration-300 hover:scale-[1.02]`}
           >
             <Car className={`w-4 h-4 sm:w-5 sm:h-5 ${theme.accentText} mb-1 shrink-0`} />
             <span className="font-black text-xs sm:text-sm tracking-tight leading-tight">
