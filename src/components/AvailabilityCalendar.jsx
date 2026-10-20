@@ -253,7 +253,7 @@ export default function AvailabilityCalendar({
 
       {/* Card Resumo de Diária e Noites */}
       <div
-        className={`p-4 flex items-center justify-between gap-3 transition-all ${calStyle.summaryCardClass}`}
+        className={`p-4 flex items-center rounded-2xl justify-between gap-3 transition-all ${calStyle.summaryCardClass}`}
       >
         <div>
           <span className="text-[10px] font-bold uppercase tracking-wider opacity-70 block">

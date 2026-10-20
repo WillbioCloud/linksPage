@@ -232,7 +232,7 @@ export default function Home() {
         </motion.header>
 
         {/* ======================================================== */}
-        {/* LAYOUT DESKTOP (md: em diante) -> 2 COLUNAS ASIMÉTRICAS    */}
+        {/* LAYOUT DESKTOP (md: em diante) -> 2 COLUNAS ASIMÉTRICAS  */}
         {/* ======================================================== */}
         <div className="hidden md:grid md:grid-cols-12 md:gap-8 lg:gap-10 items-start pt-2">
           {/* COLUNA DA ESQUERDA (60% da tela) -> Visual & Textual */}
@@ -263,7 +263,6 @@ export default function Home() {
               <div className="flex items-center gap-1.5 self-start px-3.5 py-1.5 rounded-full border border-black/10 dark:border-white/15 text-xs font-black shrink-0 shadow-sm">
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                 <span>4.98</span>
-                <span className="opacity-50">· 100% verificado</span>
               </div>
             </div>
 
