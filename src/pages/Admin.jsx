@@ -291,6 +291,12 @@ export default function Admin() {
     }
   };
 
+  const abrirSiteEmNovaAba = (e) => {
+    e?.preventDefault();
+    // window.open com '_blank' força o PWA a lançar a URL para o navegador nativo (Safari/Chrome)
+    window.open("/", "_blank", "noopener,noreferrer");
+  };
+
   // ==========================================
   // TELA DE LOGIN
   // ==========================================
@@ -379,14 +385,14 @@ export default function Admin() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              to="/"
-              target="_blank"
+            <button
+              type="button"
+              onClick={abrirSiteEmNovaAba}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Ver Site</span>
-            </Link>
+            </button>
 
             <button
               type="button"
@@ -405,14 +411,14 @@ export default function Admin() {
       {/* BARRA SUPERIOR MOBILE MINIMALISTA (APP-LIKE)             */}
       {/* ======================================================== */}
       <div className="md:hidden shrink-0 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3 flex items-center justify-between z-30">
-        <Link
-          to="/"
-          target="_blank"
+        <button
+          type="button"
+          onClick={abrirSiteEmNovaAba}
           className="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-300 active:scale-95 transition-transform"
           title="Ver Site"
         >
           <ExternalLink className="w-3.5 h-3.5" />
-        </Link>
+        </button>
 
         <div className="flex items-center gap-2">
           <Logo className="w-5 h-5 text-emerald-400 shrink-0" />
