@@ -410,13 +410,6 @@ export default function Home() {
                       Selecione as datas para ver o valor
                     </span>
                   </div>
-
-                  <div className="text-right">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-extrabold px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Sem taxas extras
-                    </span>
-                  </div>
                 </div>
 
                 {/* Calendário de Disponibilidade Integrado */}

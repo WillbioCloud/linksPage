@@ -38,8 +38,12 @@ import {
 import {
   isAdminAuthenticated,
   loginAdmin,
+  loginWithGoogle,
   logoutAdmin,
+  getLoggedEmail,
+  getAdminRole,
 } from "@/lib/adminAuth";
+import GoogleIcon from "@/components/GoogleIcon";
 import { THEMES_CONFIG } from "@/lib/themeStyles";
 import AdminCalendar from "@/components/AdminCalendar";
 import { useToast } from "@/components/ui/use-toast";
@@ -94,9 +98,30 @@ export default function Admin() {
   const { toast } = useToast();
 
   const [isAuthenticated, setIsAuthenticated] = useState(isAdminAuthenticated);
+  const loggedEmail = getLoggedEmail();
+  const adminRole = getAdminRole(loggedEmail);
   const [passwordInput, setPasswordInput] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [usePasswordMode, setUsePasswordMode] = useState(false);
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    setAuthError("");
+    const res = await loginWithGoogle();
+    setIsGoogleLoading(false);
+
+    if (res.success) {
+      setIsAuthenticated(true);
+      toast({
+        title: "Acesso Liberado!",
+        description: `Bem-vinda, ${res.user?.displayName || "Proprietária"}!`,
+      });
+    } else {
+      setAuthError(res.error);
+    }
+  };
 
   const [formData, setFormData] = useState(DEFAULT_PROPERTY);
   const [isSaving, setIsSaving] = useState(false);
@@ -323,68 +348,122 @@ export default function Admin() {
   };
 
   // ==========================================
-  // TELA DE LOGIN
+  // TELA DE LOGIN PREMIUM
   // ==========================================
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center px-4 py-8">
-        <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
-          <div className="text-center space-y-2">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-sky-500/20 text-sky-400 mb-2 border border-sky-500/30">
-              <Lock className="w-7 h-7" />
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden select-none">
+        {/* Glows de ambientação no fundo */}
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="w-full max-w-sm sm:max-w-md bg-slate-900/80 backdrop-blur-2xl border border-slate-800/80 rounded-[32px] p-6 sm:p-8 shadow-2xl shadow-black/80 space-y-6 relative z-10">
+          {/* Topo com Logo e Boas-Vindas */}
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500/20 to-emerald-500/20 border border-white/10 shadow-inner">
+              <Logo className="w-9 h-9 text-emerald-400"/>
             </div>
-            <h1 className="text-2xl font-black tracking-tight">Painel da Proprietária</h1>
-            <p className="text-sm text-slate-400">
-              Digite a senha de acesso para gerenciar as informações e disponibilidades da <strong>Home Paraíso</strong>.
-            </p>
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 inline-block">
+                Painel da Proprietária
+              </span>
+              <h1 className="text-2xl font-black tracking-tight text-white">
+                Home Paraíso
+              </h1>
+              <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
+                Acesse com sua conta do Google para gerenciar reservas, valores e fotos do imóvel.
+              </p>
+            </div>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs uppercase font-bold text-slate-400 tracking-wider">
-                Senha de Acesso
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="Digite sua senha..."
-                  className="w-full h-12 bg-slate-950 border border-slate-700 rounded-xl px-4 pr-11 text-sm focus:outline-none focus:border-sky-400 transition-colors"
-                  autoFocus
-                />
+          {/* Erro de Acesso */}
+          {authError && (
+            <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5"/>
+              <span className="leading-relaxed">{authError}</span>
+            </div>
+          )}
+
+          {/* Login Principal: Botão Google */}
+          {!usePasswordMode ? (
+            <div className="space-y-3 pt-1">
+              <button
+                type="button"
+                disabled={isGoogleLoading}
+                onClick={handleGoogleLogin}
+                className="w-full h-12 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm shadow-xl flex items-center justify-center gap-3 transition-all active:scale-98 disabled:opacity-60"
+              >
+                {isGoogleLoading ? (
+                  <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <GoogleIcon className="w-5 h-5"/>
+                    <span>Continuar com o Google</span>
+                  </>
+                )}
+              </button>
+
+              <div className="pt-2 text-center">
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                  onClick={() => { setUsePasswordMode(true); setAuthError(""); }}
+                  className="text-[11px] font-semibold text-slate-500 hover:text-slate-300 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  Entrar com senha tradicional
                 </button>
               </div>
             </div>
-
-            {authError && (
-              <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{authError}</span>
+          ) : (
+            /* Fallback com Senha */
+            <form onSubmit={handleLogin} className="space-y-4 pt-1 animate-in fade-in">
+              <div className="space-y-1.5">
+                <label className="text-[11px] uppercase font-bold text-slate-400 tracking-wider">
+                  Senha de Acesso
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    placeholder="Digite sua senha..."
+                    className="w-full h-12 bg-slate-950 border border-slate-700/80 rounded-xl px-4 pr-11 text-sm focus:outline-none focus:border-sky-400 transition-colors"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                  </button>
+                </div>
               </div>
-            )}
 
-            <button
-              type="submit"
-              className="w-full h-12 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-black text-sm tracking-wide shadow-lg shadow-sky-500/25 transition-all active:scale-98"
-            >
-              Entrar no Painel
-            </button>
-          </form>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setUsePasswordMode(false); setAuthError(""); }}
+                  className="w-1/3 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-colors"
+                >
+                  Voltar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 h-12 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-black text-sm tracking-wide shadow-lg shadow-sky-500/25 transition-all active:scale-98"
+                >
+                  Entrar no Painel
+                </button>
+              </div>
+            </form>
+          )}
 
-          <div className="pt-4 border-t border-slate-800 text-center">
-            <Link
-              to="/"
-              className="text-xs text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1"
-            >
-              ← Voltar para a Landing Page
+          {/* Rodapé Seguro */}
+          <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+            <Link className="hover:text-slate-300 transition-colors inline-flex items-center gap-1" to="/">
+              ← Voltar ao site
             </Link>
+            <span>Ambiente 100% Seguro</span>
           </div>
         </div>
       </div>
@@ -404,7 +483,21 @@ export default function Admin() {
           <div className="flex items-center gap-2.5">
             <Logo className="w-7 h-7 text-emerald-400 shrink-0" />
             <div>
-              <h1 className="text-base font-black tracking-tight leading-none">Home Paraíso Admin</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-black tracking-tight leading-none">Home Paraíso Admin</h1>
+                {/* Badge de Cargo / DEV MODE */}
+                {adminRole === "dev" ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/15 text-purple-400 border border-purple-500/30 shadow-sm animate-pulse">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                    Dev Mode
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    Proprietária
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] text-slate-400 font-medium">Gestão & Calendário</span>
             </div>
           </div>
@@ -448,6 +541,15 @@ export default function Admin() {
         <div className="flex items-center gap-2">
           <Logo className="w-5 h-5 text-emerald-400 shrink-0" />
           <h1 className="text-sm font-black tracking-tight text-white">Painel Home Paraíso</h1>
+          {adminRole === "dev" ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-500/15 text-purple-400 border border-purple-500/30 animate-pulse">
+              Dev
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              Admin
+            </span>
+          )}
         </div>
 
         <button

@@ -6,6 +6,13 @@ import {
   setDoc,
   onSnapshot,
 } from "firebase/firestore";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 // Configuração padrão completa da propriedade Home Paraíso
 export const DEFAULT_PROPERTY = {
@@ -80,15 +87,20 @@ export const isFirebaseConfigured = () => {
   );
 };
 
-// Inicializa o app e o Firestore
+// Inicializa o app, Firestore e Auth
 let db = null;
+let auth = null;
+const googleProvider = new GoogleAuthProvider();
 
 try {
   const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
   db = getFirestore(app);
+  auth = getAuth(app);
 } catch (error) {
-  console.warn("Aviso ao inicializar Firebase Firestore:", error);
+  console.warn("Aviso ao inicializar Firebase Firestore/Auth:", error);
 }
+
+export { auth, googleProvider, signInWithPopup, signOut, onAuthStateChanged, db };
 
 export const getLocalProperty = () => {
   try {
