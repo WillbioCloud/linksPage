@@ -675,25 +675,23 @@ export default function Home() {
           </motion.section>
 
           {/* CALENDÁRIO MOBILE */}
-          {property.mostrar_calendario !== false && (
-            <motion.section
-              ref={calendarSectionRef}
-              variants={fadeInUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.1 }}
-              className="pt-6 space-y-3 scroll-mt-6"
-            >
-              <div className="flex items-center justify-between px-2">
-                <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
-                  <CalendarCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                  <span>Calendário de Disponibilidade</span>
-                </h2>
-              </div>
+          <motion.section
+            ref={calendarSectionRef}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="pt-6 space-y-3 scroll-mt-6"
+          >
+            <div className="flex items-center justify-between px-2">
+              <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
+                <CalendarCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <span>Calendário de Disponibilidade</span>
+              </h2>
+            </div>
 
-              <AvailabilityCalendar property={effectiveProperty} theme={theme} />
-            </motion.section>
-          )}
+            <AvailabilityCalendar property={effectiveProperty} theme={theme} />
+          </motion.section>
 
           {/* CARROSSEL MOBILE DE FOTOS */}
           <motion.section

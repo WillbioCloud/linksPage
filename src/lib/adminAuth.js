@@ -1,4 +1,11 @@
-import { auth, googleProvider, signInWithPopup, signOut as fbSignOut } from "@/lib/firebase";
+import { 
+  auth, 
+  googleProvider, 
+  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult,
+  signOut as fbSignOut 
+} from "@/lib/firebase";
 
 const AUTH_STORAGE_KEY = "home_paraiso_admin_logged";
 const AUTH_EMAIL_KEY = "home_paraiso_admin_email";
@@ -6,8 +13,18 @@ const AUTH_EMAIL_KEY = "home_paraiso_admin_email";
 // E-mails autorizados lidos dinamicamente de variáveis de ambiente
 export const getAuthorizedEmails = () => {
   const devEmail = (import.meta.env.VITE_DEV_EMAIL || "").toLowerCase().trim();
-  const ownerEmail = (import.meta.env.VITE_OWNER_EMAIL || "").toLowerCase().trim();
-  const list = [devEmail, ownerEmail].filter(Boolean);
+  const rawOwnerEmails = (
+    import.meta.env.VITE_OWNER_EMAILS ||
+    import.meta.env.VITE_OWNER_EMAIL ||
+    ""
+  ).toLowerCase().trim();
+
+  const ownerList = rawOwnerEmails
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
+
+  const list = [devEmail, ...ownerList].filter(Boolean);
   return list.length > 0 ? list : ["contato@homeparaiso.com.br", "seuemail@gmail.com"];
 };
 
@@ -17,12 +34,20 @@ export const AUTHORIZED_EMAILS = getAuthorizedEmails();
 export const getAdminRole = (email) => {
   const currentEmail = (email || getLoggedEmail() || "").toLowerCase().trim();
   const devEmail = (import.meta.env.VITE_DEV_EMAIL || "").toLowerCase().trim();
-  const ownerEmail = (import.meta.env.VITE_OWNER_EMAIL || "").toLowerCase().trim();
+  const rawOwnerEmails = (
+    import.meta.env.VITE_OWNER_EMAILS ||
+    import.meta.env.VITE_OWNER_EMAIL ||
+    ""
+  ).toLowerCase().trim();
+  const ownerList = rawOwnerEmails
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
 
   if (currentEmail && devEmail && currentEmail === devEmail) {
     return "dev";
   }
-  if (currentEmail && ownerEmail && currentEmail === ownerEmail) {
+  if (currentEmail && ownerList.includes(currentEmail)) {
     return "proprietaria";
   }
   return "admin";
@@ -48,10 +73,26 @@ export const getLoggedEmail = () => {
   }
 };
 
-// Login com Conta Google
+// Login com Conta Google resiliente a bloqueios de Popup e COOP
 export const loginWithGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
+    // Configura prompt para sempre permitir selecionar a conta limpa
+    googleProvider.setCustomParameters({ prompt: "select_account" });
+
+    let result;
+    try {
+      result = await signInWithPopup(auth, googleProvider);
+    } catch (popupErr) {
+      // Se o popup for bloqueado pelo navegador ou pelo COOP, tenta com redirect
+      console.warn("Popup bloqueado ou com falha COOP, tentando redirect:", popupErr);
+      await signInWithRedirect(auth, googleProvider);
+      return { success: false, pendingRedirect: true };
+    }
+
+    if (!result?.user) {
+      return { success: false, error: "Nenhum usuário retornado pelo Google." };
+    }
+
     const user = result.user;
     const userEmail = (user.email || "").toLowerCase().trim();
 

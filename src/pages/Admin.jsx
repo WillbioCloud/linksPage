@@ -30,6 +30,8 @@ import {
   savePropertyToFirebase,
   isFirebaseConfigured,
   DEFAULT_PROPERTY,
+  auth,
+  onAuthStateChanged,
 } from "@/lib/firebase";
 import {
   uploadImageToCloudinary,
@@ -98,7 +100,7 @@ export default function Admin() {
   const { toast } = useToast();
 
   const [isAuthenticated, setIsAuthenticated] = useState(isAdminAuthenticated);
-  const loggedEmail = getLoggedEmail();
+  const [loggedEmail, setLoggedEmail] = useState(getLoggedEmail);
   const adminRole = getAdminRole(loggedEmail);
   const [passwordInput, setPasswordInput] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -114,6 +116,9 @@ export default function Admin() {
 
     if (res.success) {
       setIsAuthenticated(true);
+      if (res.user?.email) {
+        setLoggedEmail(res.user.email.toLowerCase().trim());
+      }
       toast({
         title: "Acesso Liberado!",
         description: `Bem-vinda, ${res.user?.displayName || "Proprietária"}!`,
@@ -154,13 +159,44 @@ export default function Admin() {
   const [manualImageUrl, setManualImageUrl] = useState("");
 
   useEffect(() => {
-    const unsubscribe = subscribeToProperty((data) => {
+    const unsubscribeProperty = subscribeToProperty((data) => {
       setFormData(data);
       if (data.link_whatsapp) {
         setPhoneDisplay(formatPhoneInput(data.link_whatsapp));
       }
     });
-    return () => unsubscribe();
+
+    // Mantém a sessão do Firebase Auth sincronizada e autorizada
+    let unsubscribeAuth = () => {};
+    if (auth) {
+      unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const email = (user.email || "").toLowerCase().trim();
+          const authorizedList = (
+            (import.meta.env.VITE_DEV_EMAIL || "") + "," +
+            (import.meta.env.VITE_OWNER_EMAILS || import.meta.env.VITE_OWNER_EMAIL || "")
+          ).toLowerCase().split(",").map(e => e.trim()).filter(Boolean);
+
+          if (authorizedList.includes(email)) {
+            setIsAuthenticated(true);
+            setLoggedEmail(email);
+          } else {
+            setIsAuthenticated(false);
+            setAuthError(`O e-mail ${email} não tem autorização.`);
+          }
+        } else {
+          // Se não houver usuário no Firebase Auth e não estiver usando senha local
+          if (!localStorage.getItem("home_paraiso_admin_email")?.includes("@sistema.local")) {
+            setIsAuthenticated(false);
+          }
+        }
+      });
+    }
+
+    return () => {
+      unsubscribeProperty();
+      unsubscribeAuth();
+    };
   }, []);
 
   // Fechar o modal de pré-visualização com a tecla Esc
@@ -529,15 +565,6 @@ export default function Admin() {
       {/* BARRA SUPERIOR MOBILE MINIMALISTA (APP-LIKE)             */}
       {/* ======================================================== */}
       <div className="md:hidden shrink-0 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3 flex items-center justify-between z-30">
-        <button
-          type="button"
-          onClick={abrirSiteEmNovaAba}
-          className="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-300 active:scale-95 transition-transform"
-          title="Ver Site"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-        </button>
-
         <div className="flex items-center gap-2">
           <Logo className="w-5 h-5 text-emerald-400 shrink-0" />
           <h1 className="text-sm font-black tracking-tight text-white">Painel Home Paraíso</h1>
@@ -619,19 +646,31 @@ export default function Admin() {
             onChangeOcupacao={(updatedDates) => {
               setFormData((prev) => {
                 const next = { ...prev, datas_ocupadas: updatedDates };
-                savePropertyToFirebase(next);
+                savePropertyToFirebase(next).catch((err) => {
+                  console.error("Erro ao salvar ocupação no Firebase:", err);
+                  toast({
+                    variant: "destructive",
+                    title: "Erro de Permissão no Firebase",
+                    description: err.message || "Não foi possível sincronizar com o banco de dados.",
+                  });
+                });
                 return next;
               });
             }}
             onChangePrecos={(updatedPrecos) => {
               setFormData((prev) => {
                 const next = { ...prev, precos_personalizados: updatedPrecos };
-                savePropertyToFirebase(next);
+                savePropertyToFirebase(next).catch((err) => {
+                  console.error("Erro ao salvar preços no Firebase:", err);
+                  toast({
+                    variant: "destructive",
+                    title: "Erro de Permissão no Firebase",
+                    description: err.message || "Não foi possível sincronizar com o banco de dados.",
+                  });
+                });
                 return next;
               });
             }}
-            mostrarCalendario={formData.mostrar_calendario !== false}
-            onToggleMostrarCalendario={(val) => handleChange("mostrar_calendario", val)}
           />
         </section>
 

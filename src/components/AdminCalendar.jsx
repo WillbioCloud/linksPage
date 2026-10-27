@@ -54,8 +54,6 @@ export default function AdminCalendar({
   onChangeOcupacao,
   onChangePrecos,
   onChange,
-  mostrarCalendario = true,
-  onToggleMostrarCalendario,
 }) {
   const triggerChangeOcupacao = (val) => {
     if (onChangeOcupacao) onChangeOcupacao(val);
@@ -196,37 +194,7 @@ export default function AdminCalendar({
 
   return (
     <div className="space-y-6">
-      {/* 1. Toggle Switch de Exibição */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4">
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-sm text-white">Exibir Calendário na Landing Page</span>
-            <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
-              mostrarCalendario ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-slate-800 text-slate-400 border border-slate-700"
-            }`}>
-              {mostrarCalendario ? "Visível no Site" : "Oculto"}
-            </span>
-          </div>
-          <p className="text-xs text-slate-400">
-            Quando ativo, os clientes podem consultar disponibilidades e simular diárias.
-          </p>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={mostrarCalendario}
-          onClick={() => onToggleMostrarCalendario(!mostrarCalendario)}
-          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-            mostrarCalendario ? "bg-emerald-500" : "bg-slate-700"
-          }`}
-        >
-          <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-            mostrarCalendario ? "translate-x-5" : "translate-x-0"
-          }`} />
-        </button>
-      </div>
-
-      {/* 2. Seletor de Modo de Seleção (1 Dia vs Período) */}
+      {/* 1. Seletor de Modo de Seleção (1 Dia vs Período) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
         <div>
           <span className="text-xs font-bold text-white block">

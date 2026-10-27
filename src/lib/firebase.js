@@ -10,6 +10,8 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
@@ -100,7 +102,16 @@ try {
   console.warn("Aviso ao inicializar Firebase Firestore/Auth:", error);
 }
 
-export { auth, googleProvider, signInWithPopup, signOut, onAuthStateChanged, db };
+export { 
+  auth, 
+  googleProvider, 
+  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult, 
+  signOut, 
+  onAuthStateChanged, 
+  db 
+};
 
 export const getLocalProperty = () => {
   try {
