@@ -643,34 +643,30 @@ export default function Admin() {
             datasOcupadas={formData.datas_ocupadas || {}}
             precosPersonalizados={formData.precos_personalizados || {}}
             valorDiariaBase={formData.valor_diaria_base || formData.valor_diaria_num || 650}
-            onChangeOcupacao={(updatedDates) => {
-              setFormData((prev) => {
-                const next = { ...prev, datas_ocupadas: updatedDates };
-                savePropertyToFirebase(next).catch((err) => {
-                  console.error("Erro ao salvar ocupação no Firebase:", err);
-                  toast({
-                    variant: "destructive",
-                    title: "Erro de Permissão no Firebase",
-                    description: err.message || "Não foi possível sincronizar com o banco de dados.",
-                  });
+            onChangeCalendar={async ({ datasOcupadas, precosPersonalizados }) => {
+              const updated = {
+                ...formData,
+                datas_ocupadas: datasOcupadas,
+                precos_personalizados: precosPersonalizados,
+              };
+              setFormData(updated);
+              try {
+                await savePropertyToFirebase(updated);
+                toast({
+                  title: "Atualizado!",
+                  description: "Valores e disponibilidade salvos na nuvem.",
                 });
-                return next;
-              });
-            }}
-            onChangePrecos={(updatedPrecos) => {
-              setFormData((prev) => {
-                const next = { ...prev, precos_personalizados: updatedPrecos };
-                savePropertyToFirebase(next).catch((err) => {
-                  console.error("Erro ao salvar preços no Firebase:", err);
-                  toast({
-                    variant: "destructive",
-                    title: "Erro de Permissão no Firebase",
-                    description: err.message || "Não foi possível sincronizar com o banco de dados.",
-                  });
+              } catch (err) {
+                console.error("Erro ao salvar:", err);
+                toast({
+                  variant: "destructive",
+                  title: "Falha ao Salvar",
+                  description: err.message || "Verifique sua conexão ou permissão.",
                 });
-                return next;
-              });
+              }
             }}
+            mostrarCalendario={formData.mostrar_calendario !== false}
+            onToggleMostrarCalendario={(val) => handleChange("mostrar_calendario", val)}
           />
         </section>
 

@@ -244,9 +244,11 @@ export default function AvailabilityCalendar({
       return { nights: 0, total: 0, averagePerNight: Number(valorDiariaBase) };
     }
 
-    // Noites reais são todos os dias de pernoite exceto o dia do check-out
+    // Intervalo de datas selecionado
     const rangeKeys = getDatesInRange(checkIn, checkOut);
-    const nightKeys = rangeKeys.slice(0, -1);
+    
+    // Pernoites reais: a última data é o check-out (saída até 11h), não conta como diária pernoitada
+    const nightKeys = rangeKeys.length > 1 ? rangeKeys.slice(0, -1) : rangeKeys;
 
     let total = 0;
     nightKeys.forEach((key) => {

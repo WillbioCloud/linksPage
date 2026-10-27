@@ -51,9 +51,11 @@ export default function AdminCalendar({
   datasOcupadas = {},
   precosPersonalizados = {},
   valorDiariaBase = 650,
+  onChangeCalendar,
   onChangeOcupacao,
   onChangePrecos,
-  onChange,
+  mostrarCalendario = true,
+  onToggleMostrarCalendario,
 }) {
   const triggerChangeOcupacao = (val) => {
     if (onChangeOcupacao) onChangeOcupacao(val);
@@ -162,8 +164,12 @@ export default function AdminCalendar({
       }
     });
 
-    triggerChangePrecos(nextPrecos);
-    triggerChangeOcupacao(nextOcupadas);
+    if (onChangeCalendar) {
+      onChangeCalendar({ datasOcupadas: nextOcupadas, precosPersonalizados: nextPrecos });
+    } else {
+      triggerChangePrecos(nextPrecos);
+      triggerChangeOcupacao(nextOcupadas);
+    }
     setSelectedSheet(null);
   };
 

@@ -207,7 +207,8 @@ export const savePropertyToFirebase = async (propertyData) => {
 
   try {
     const docRef = doc(db, "propriedades", "home-paraiso");
-    await setDoc(docRef, propertyData, { merge: true });
+    // Sem merge: true para permitir a exclusão real de datas desmarcadas
+    await setDoc(docRef, propertyData);
     return {
       success: true,
       mode: "cloud",
