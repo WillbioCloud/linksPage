@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -51,6 +51,80 @@ export default function AvailabilityCalendar({
   const occupiedDates = property.datas_ocupadas || {};
   const precosPersonalizados = property.precos_personalizados || {};
   const maxGuests = property.max_hospedes || 8;
+  const maxGuestCount = Math.min(Math.max(Number(maxGuests) || 8, 1), 30);
+  const guestOptions = Array.from({ length: maxGuestCount }, (_, i) => i + 1);
+
+  // Carrossel de botões de hóspedes
+  const guestsTrackRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateGuestScroll = useCallback(() => {
+    if (!guestsTrackRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = guestsTrackRef.current;
+    setCanScrollLeft(scrollLeft > 3);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 3);
+  }, []);
+
+  useEffect(() => {
+    const el = guestsTrackRef.current;
+    if (!el) return;
+
+    updateGuestScroll();
+
+    el.addEventListener("scroll", updateGuestScroll, { passive: true });
+    window.addEventListener("resize", updateGuestScroll);
+
+    let observer;
+    if (typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => {
+        updateGuestScroll();
+      });
+      observer.observe(el);
+    }
+
+    return () => {
+      el.removeEventListener("scroll", updateGuestScroll);
+      window.removeEventListener("resize", updateGuestScroll);
+      if (observer) observer.disconnect();
+    };
+  }, [updateGuestScroll, maxGuestCount]);
+
+  // Centraliza o botão selecionado inicialmente se necessário
+  useEffect(() => {
+    if (guestsTrackRef.current) {
+      const selectedBtn = guestsTrackRef.current.querySelector(
+        '[data-selected="true"]'
+      );
+      if (selectedBtn) {
+        selectedBtn.scrollIntoView({
+          behavior: "smooth",
+          inline: "nearest",
+          block: "nearest",
+        });
+      }
+    }
+  }, []);
+
+  const scrollGuests = (direction) => {
+    if (!guestsTrackRef.current) return;
+    const scrollAmount = 140;
+    guestsTrackRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
+  const handleSelectGuest = (num, event) => {
+    setGuestCount(num);
+    if (event?.currentTarget) {
+      event.currentTarget.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+  };
 
   const valorDiariaBase =
     property.valor_diaria_base ||
@@ -465,38 +539,85 @@ export default function AvailabilityCalendar({
         </div>
       </div>
 
-      {/* Seletor de Hóspedes estilo App */}
+      {/* Seletor de Hóspedes estilo App com Carrossel e Botões de Navegação */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
             <Users className={`w-4 h-4 ${activeTheme.accentText || "opacity-70"}`} />
             <span>Número de hóspedes</span>
+            <span className="normal-case font-extrabold text-[11px] opacity-85 px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10 ml-0.5">
+              ({guestCount} {guestCount === 1 ? "pessoa" : "pessoas"})
+            </span>
           </label>
           <span className="text-xs font-semibold opacity-60">
-            Máx: {maxGuests} pessoas
+            Máx: {maxGuestCount} pessoas
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-1">
-          {Array.from({ length: Math.min(maxGuests, 10) }, (_, i) => i + 1).map(
-            (num) => {
+        {/* Linha do Carrossel com Botões de Navegação */}
+        <div className="relative flex items-center gap-1 sm:gap-1.5">
+          {/* Botão para rolar à esquerda */}
+          <button
+            type="button"
+            onClick={() => scrollGuests("left")}
+            disabled={!canScrollLeft}
+            className={`p-2 shrink-0 flex items-center justify-center transition-all ${
+              calStyle.navButton
+            } ${
+              !canScrollLeft
+                ? "opacity-20 cursor-not-allowed pointer-events-none"
+                : "opacity-80 hover:opacity-100 hover:scale-105 active:scale-95 shadow-sm"
+            }`}
+            aria-label="Ver opções anteriores de hóspedes"
+            title="Anterior"
+          >
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+
+          {/* Trilho de botões de quantidade */}
+          <div
+            ref={guestsTrackRef}
+            className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1 flex-1"
+          >
+            {guestOptions.map((num) => {
               const isSelected = guestCount === num;
               return (
                 <button
                   key={num}
                   type="button"
-                  onClick={() => setGuestCount(num)}
+                  data-selected={isSelected}
+                  onClick={(e) => handleSelectGuest(num, e)}
                   className={`w-10 sm:w-12 h-10 sm:h-12 shrink-0 text-xs sm:text-sm font-black transition-all ${
                     isSelected
                       ? calStyle.guestButtonActive
                       : calStyle.guestButtonInactive
                   }`}
+                  aria-pressed={isSelected}
+                  aria-label={`${num} ${num === 1 ? "hóspede" : "hóspedes"}`}
                 >
                   {num}
                 </button>
               );
-            }
-          )}
+            })}
+          </div>
+
+          {/* Botão para rolar à direita */}
+          <button
+            type="button"
+            onClick={() => scrollGuests("right")}
+            disabled={!canScrollRight}
+            className={`p-2 shrink-0 flex items-center justify-center transition-all ${
+              calStyle.navButton
+            } ${
+              !canScrollRight
+                ? "opacity-20 cursor-not-allowed pointer-events-none"
+                : "opacity-80 hover:opacity-100 hover:scale-105 active:scale-95 shadow-sm"
+            }`}
+            aria-label="Ver mais opções de hóspedes"
+            title="Próximo"
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
         </div>
       </div>
 
