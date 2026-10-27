@@ -9,21 +9,13 @@ import {
   Sparkles,
   Info,
   X,
+  DollarSign,
+  Tag,
 } from "lucide-react";
 
 const MONTH_NAMES = [
-  "Janeiro",
-  "Fevereiro",
-  "Março",
-  "Abril",
-  "Maio",
-  "Junho",
-  "Julho",
-  "Agosto",
-  "Setembro",
-  "Outubro",
-  "Novembro",
-  "Dezembro",
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
 const WEEKDAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
@@ -33,54 +25,58 @@ export const ORIGIN_CONFIG = {
     id: "airbnb",
     name: "Airbnb",
     color: "bg-rose-500",
-    text: "text-rose-400",
-    border: "border-rose-500/50",
     badge: "bg-rose-500/20 text-rose-300 border border-rose-500/30",
-    dot: "bg-rose-500",
   },
   booking: {
     id: "booking",
     name: "Booking.com",
     color: "bg-blue-600",
-    text: "text-blue-400",
-    border: "border-blue-500/50",
     badge: "bg-blue-500/20 text-blue-300 border border-blue-500/30",
-    dot: "bg-blue-500",
   },
   direto: {
     id: "direto",
     name: "Reserva Direta",
     color: "bg-emerald-500",
-    text: "text-emerald-400",
-    border: "border-emerald-500/50",
     badge: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
-    dot: "bg-emerald-500",
   },
   bloqueado: {
     id: "bloqueado",
     name: "Bloqueio / Pessoal",
     color: "bg-slate-500",
-    text: "text-slate-400",
-    border: "border-slate-500/50",
     badge: "bg-slate-500/20 text-slate-300 border border-slate-500/30",
-    dot: "bg-slate-400",
   },
 };
 
 export default function AdminCalendar({
   datasOcupadas = {},
+  precosPersonalizados = {},
+  valorDiariaBase = 650,
+  onChangeOcupacao,
+  onChangePrecos,
   onChange,
   mostrarCalendario = true,
   onToggleMostrarCalendario,
 }) {
+  const triggerChangeOcupacao = (val) => {
+    if (onChangeOcupacao) onChangeOcupacao(val);
+    else if (onChange) onChange(val);
+  };
+  const triggerChangePrecos = (val) => {
+    if (onChangePrecos) onChangePrecos(val);
+  };
+
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1)
   );
 
-  const [selectedOrigin, setSelectedOrigin] = useState("airbnb");
-  const [mode, setMode] = useState("single"); // 'single' (toque rápido 1 dia) | 'range' (período check-in / check-out)
+  const [mode, setMode] = useState("single"); // 'single' (1 dia) | 'range' (período)
   const [rangeStart, setRangeStart] = useState(null);
+
+  // Estado do Balão Preto Estilo Airbnb: controla Preço + Status do(s) dia(s) selecionado(s)
+  const [selectedSheet, setSelectedSheet] = useState(null); // { dateKeys: [] }
+  const [sheetPrice, setSheetPrice] = useState("");
+  const [sheetStatus, setSheetStatus] = useState("livre"); // 'livre' | 'airbnb' | 'booking' | 'direto' | 'bloqueado'
 
   const formatDateKey = (year, month, day) => {
     const y = year;
@@ -91,7 +87,6 @@ export default function AdminCalendar({
 
   const todayKey = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate());
 
-  // Calcula todas as datas do intervalo de forma 100% local (sem problemas de fuso UTC)
   const getDatesInRange = (startDateKey, endDateKey) => {
     const [y1, m1, d1] = startDateKey.split("-").map(Number);
     const [y2, m2, d2] = endDateKey.split("-").map(Number);
@@ -114,71 +109,75 @@ export default function AdminCalendar({
   };
 
   const handlePrevMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
-    );
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
   };
 
   const handleNextMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
-    );
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
-  // Clique no calendário: marcação instantânea ou por período
+  const openAirbnbBalloon = (dateKeys) => {
+    const firstKey = dateKeys[0];
+    const currentPrice = precosPersonalizados[firstKey] || valorDiariaBase;
+    const currentOcupacao = datasOcupadas[firstKey]?.origem || "livre";
+
+    setSheetPrice(String(currentPrice));
+    setSheetStatus(currentOcupacao);
+    setSelectedSheet({ dateKeys });
+  };
+
   const handleDayClick = (dateKey) => {
-    const next = { ...datasOcupadas };
-
     if (mode === "single") {
-      // Modo Toque Rápido: toque simples marca ou desmarca imediatamente
-      if (next[dateKey]) {
-        delete next[dateKey];
-      } else {
-        next[dateKey] = { origem: selectedOrigin };
-      }
-      onChange(next);
-      return;
-    }
-
-    // Modo Período: início e fim
-    if (!rangeStart) {
-      setRangeStart(dateKey);
+      openAirbnbBalloon([dateKey]);
     } else {
-      const datesToMark = getDatesInRange(rangeStart, dateKey);
-      datesToMark.forEach((k) => {
-        next[k] = { origem: selectedOrigin };
-      });
-      setRangeStart(null);
-      onChange(next);
+      if (!rangeStart) {
+        setRangeStart(dateKey);
+      } else {
+        const rangeKeys = getDatesInRange(rangeStart, dateKey);
+        setRangeStart(null);
+        openAirbnbBalloon(rangeKeys);
+      }
     }
   };
 
-  const handleCancelRange = () => {
-    setRangeStart(null);
+  const handleApplyBalloon = (e) => {
+    e?.preventDefault();
+    if (!selectedSheet) return;
+
+    const numPrice = parseInt(String(sheetPrice).replace(/\D/g, ""), 10) || valorDiariaBase;
+    const nextPrecos = { ...precosPersonalizados };
+    const nextOcupadas = { ...datasOcupadas };
+
+    selectedSheet.dateKeys.forEach((k) => {
+      // 1. Atualiza preço do dia
+      if (numPrice === valorDiariaBase) {
+        delete nextPrecos[k];
+      } else {
+        nextPrecos[k] = numPrice;
+      }
+
+      // 2. Atualiza ocupação do dia
+      if (sheetStatus === "livre") {
+        delete nextOcupadas[k];
+      } else {
+        nextOcupadas[k] = { origem: sheetStatus };
+      }
+    });
+
+    triggerChangePrecos(nextPrecos);
+    triggerChangeOcupacao(nextOcupadas);
+    setSelectedSheet(null);
   };
 
-  // Liberar uma reserva específica
-  const handleRemoveDate = (dateKey) => {
-    const next = { ...datasOcupadas };
-    delete next[dateKey];
-    onChange(next);
-  };
-
-  // Dias do mês atual para o grid
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-
   const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
   const totalDays = new Date(year, month + 1, 0).getDate();
   const prevMonthTotalDays = new Date(year, month, 0).getDate();
 
   const days = [];
   for (let i = firstDayIndex - 1; i >= 0; i--) {
-    days.push({
-      day: prevMonthTotalDays - i,
-      isCurrentMonth: false,
-      key: `prev-${i}`,
-    });
+    days.push({ day: prevMonthTotalDays - i, isCurrentMonth: false, key: `prev-${i}` });
   }
   for (let d = 1; d <= totalDays; d++) {
     const key = formatDateKey(year, month, d);
@@ -187,156 +186,95 @@ export default function AdminCalendar({
       isCurrentMonth: true,
       key,
       info: datasOcupadas[key],
+      precoCustom: precosPersonalizados[key],
     });
   }
   const remainingDays = (7 - (days.length % 7)) % 7;
   for (let i = 1; i <= remainingDays; i++) {
-    days.push({
-      day: i,
-      isCurrentMonth: false,
-      key: `next-${i}`,
-    });
+    days.push({ day: i, isCurrentMonth: false, key: `next-${i}` });
   }
-
-  const sortedDates = Object.keys(datasOcupadas).sort();
 
   return (
     <div className="space-y-6">
-      {/* 1. Toggle Switch com CSS Robusto e Corrigido */}
+      {/* 1. Toggle Switch de Exibição */}
       <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-sm text-white">
-              Exibir Calendário na Landing Page
-            </span>
-            <span
-              className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
-                mostrarCalendario
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                  : "bg-slate-800 text-slate-400 border border-slate-700"
-              }`}
-            >
+            <span className="font-bold text-sm text-white">Exibir Calendário na Landing Page</span>
+            <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+              mostrarCalendario ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-slate-800 text-slate-400 border border-slate-700"
+            }`}>
               {mostrarCalendario ? "Visível no Site" : "Oculto"}
             </span>
           </div>
           <p className="text-xs text-slate-400">
-            Quando ativo, os clientes podem consultar as datas livres e calcular valores na página.
+            Quando ativo, os clientes podem consultar disponibilidades e simular diárias.
           </p>
         </div>
-
-        {/* Toggle Switch Estilo iOS corrigido com shrink-0 */}
         <button
           type="button"
           role="switch"
           aria-checked={mostrarCalendario}
           onClick={() => onToggleMostrarCalendario(!mostrarCalendario)}
-          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
             mostrarCalendario ? "bg-emerald-500" : "bg-slate-700"
           }`}
         >
-          <span
-            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-              mostrarCalendario ? "translate-x-5" : "translate-x-0"
-            }`}
-          />
+          <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+            mostrarCalendario ? "translate-x-5" : "translate-x-0"
+          }`} />
         </button>
       </div>
 
-      {/* 2. Modo de Marcação & Seletor de Origem de Ocupação */}
-      <div className="space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div className="space-y-0.5">
-            <label className="text-xs uppercase font-bold text-slate-400 tracking-wider">
-              Modo de Marcação:
-            </label>
-            <p className="text-[11px] text-slate-500">
-              {mode === "single"
-                ? "Toque rápido: marque ou desmarque cada dia com 1 toque instantâneo."
-                : "Marcar período: toque na data de entrada e depois na de saída."}
-            </p>
-          </div>
-
-          <div className="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-800 self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => {
-                setMode("single");
-                setRangeStart(null);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                mode === "single"
-                  ? "bg-sky-500 text-white shadow-md"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              👆 Toque Rápido (1 Dia)
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMode("range");
-                setRangeStart(null);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                mode === "range"
-                  ? "bg-sky-500 text-white shadow-md"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              📅 Marcar Período
-            </button>
-          </div>
+      {/* 2. Seletor de Modo de Seleção (1 Dia vs Período) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+        <div>
+          <span className="text-xs font-bold text-white block">
+            Toque em uma data para editar Preço ou Disponibilidade
+          </span>
+          <span className="text-[11px] text-slate-400">
+            Diária padrão atual: <strong className="text-emerald-400">R$ {valorDiariaBase}</strong>
+          </span>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs uppercase font-bold text-slate-400 tracking-wider">
-            Canal selecionado para marcar:
-          </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {Object.values(ORIGIN_CONFIG).map((org) => {
-              const isSelected = selectedOrigin === org.id;
-              return (
-                <button
-                  key={org.id}
-                  type="button"
-                  onClick={() => setSelectedOrigin(org.id)}
-                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
-                    isSelected
-                      ? `${org.border} bg-slate-800 text-white font-bold ring-2 ring-white/20 shadow-md scale-102`
-                      : "border-slate-800 bg-slate-950 text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <span className={`w-3.5 h-3.5 rounded-full ${org.color} shrink-0`} />
-                  <span className="text-xs truncate">{org.name}</span>
-                </button>
-              );
-            })}
-          </div>
+        <div className="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-800 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => { setMode("single"); setRangeStart(null); }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              mode === "single" ? "bg-sky-500 text-white" : "text-slate-400 hover:text-white"
+            }`}
+          >
+            1 Dia
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMode("range"); setRangeStart(null); }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              mode === "range" ? "bg-sky-500 text-white" : "text-slate-400 hover:text-white"
+            }`}
+          >
+            Período (Vários Dias)
+          </button>
         </div>
       </div>
 
-      {/* Alerta quando o modo período estiver ativo aguardando check-out */}
       {mode === "range" && rangeStart && (
-        <div className="p-3.5 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-200 text-xs flex flex-wrap items-center justify-between gap-3 animate-in fade-in">
-          <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-blue-400 shrink-0" />
-            <span>
-              Check-in selecionado: <strong>{rangeStart.split("-").reverse().join("/")}</strong>. Agora toque no dia de check-out no calendário para preencher o período com <strong>{ORIGIN_CONFIG[selectedOrigin]?.name}</strong>.
-            </span>
-          </div>
-
+        <div className="p-3 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-300 text-xs flex items-center justify-between">
+          <span>
+            Início: <strong>{rangeStart.split("-").reverse().join("/")}</strong> — agora toque na data final.
+          </span>
           <button
             type="button"
-            onClick={handleCancelRange}
-            className="px-2.5 py-1 rounded-lg bg-blue-500/30 hover:bg-blue-500/50 text-blue-100 text-xs font-semibold flex items-center gap-1"
+            onClick={() => setRangeStart(null)}
+            className="text-xs font-bold underline"
           >
-            <X className="w-3.5 h-3.5" />
-            <span>Cancelar</span>
+            Cancelar
           </button>
         </div>
       )}
 
-      {/* 3. Grade Interativa do Calendário */}
+      {/* 3. Grade Interativa do Calendário (Sempre mostra Dia + Valor + Cor de Ocupação) */}
       <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -345,13 +283,11 @@ export default function AdminCalendar({
               {MONTH_NAMES[month]} {year}
             </span>
           </div>
-
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={handlePrevMonth}
               className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300"
-              aria-label="Mês anterior"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -359,62 +295,47 @@ export default function AdminCalendar({
               type="button"
               onClick={handleNextMonth}
               className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300"
-              aria-label="Próximo mês"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        <p className="text-[11px] text-slate-400">
-          💡 <strong>Dica:</strong> Toque em um dia livre para marcar instantaneamente como <strong>{ORIGIN_CONFIG[selectedOrigin]?.name}</strong>. Toque em um dia ocupado para liberar a data.
-        </p>
-
-        {/* Grid de dias */}
         <div className="space-y-1.5">
           <div className="grid grid-cols-7 text-center text-xs font-bold text-slate-500 pb-1">
-            {WEEKDAYS.map((w) => (
-              <div key={w}>{w}</div>
-            ))}
+            {WEEKDAYS.map((w) => <div key={w}>{w}</div>)}
           </div>
 
           <div className="grid grid-cols-7 gap-1.5">
             {days.map((item) => {
               if (!item.isCurrentMonth) {
                 return (
-                  <div
-                    key={item.key}
-                    className="h-11 rounded-lg flex items-center justify-center text-xs text-slate-700 select-none"
-                  >
+                  <div key={item.key} className="h-12 rounded-lg flex items-center justify-center text-xs text-slate-700 select-none">
                     {item.day}
                   </div>
                 );
               }
 
               const isStartSelected = rangeStart === item.key;
-              const config = item.info
-                ? ORIGIN_CONFIG[item.info.origem] || ORIGIN_CONFIG.bloqueado
-                : null;
+              const isSelectedInBalloon = selectedSheet?.dateKeys?.includes(item.key);
+              const config = item.info ? ORIGIN_CONFIG[item.info.origem] || ORIGIN_CONFIG.bloqueado : null;
               const isToday = item.key === todayKey;
-              const isPast = item.key < todayKey;
+              const dailyPrice = item.precoCustom || valorDiariaBase;
 
-              let cellStyle =
-                "h-11 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all relative cursor-pointer select-none";
+              let cellStyle = "h-13 sm:h-14 rounded-xl flex flex-col items-center justify-between py-1.5 px-0.5 text-xs font-bold transition-all relative cursor-pointer select-none ";
 
-              if (isStartSelected) {
-                cellStyle += " bg-blue-500 text-white ring-2 ring-white shadow-lg scale-105 z-10";
+              if (isStartSelected || isSelectedInBalloon) {
+                cellStyle += "bg-white text-slate-950 ring-2 ring-sky-400 scale-105 z-10 shadow-xl";
               } else if (config) {
-                cellStyle += ` ${config.color} text-white shadow-md hover:brightness-110 active:scale-95`;
+                cellStyle += `${config.color} text-white shadow-md hover:brightness-110`;
+              } else if (item.precoCustom) {
+                cellStyle += "bg-slate-900 border border-emerald-500/60 text-white hover:bg-slate-800";
               } else {
-                cellStyle +=
-                  " bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white active:scale-95 border border-slate-800/80";
-                if (isPast) {
-                  cellStyle += " opacity-60";
-                }
+                cellStyle += "bg-slate-900 text-slate-200 hover:bg-slate-800 border border-slate-800/80";
               }
 
-              if (isToday) {
-                cellStyle += " ring-2 ring-sky-400 ring-offset-2 ring-offset-slate-950";
+              if (isToday && !isSelectedInBalloon) {
+                cellStyle += " ring-2 ring-sky-400";
               }
 
               return (
@@ -423,106 +344,140 @@ export default function AdminCalendar({
                   type="button"
                   onClick={() => handleDayClick(item.key)}
                   className={cellStyle}
-                  title={
-                    config
-                      ? `${item.day} - Ocupado (${config.name}). Toque para liberar.`
-                      : isPast
-                      ? `${item.day} (Anterior a hoje). Toque para marcar.`
-                      : `${item.day} (Livre). Toque para marcar como ${ORIGIN_CONFIG[selectedOrigin]?.name}.`
-                  }
                 >
-                  <span className={isPast && !config ? "text-slate-400" : ""}>{item.day}</span>
+                  <span className="text-[11px] leading-none">{item.day}</span>
                   {config ? (
-                    <span className="text-[8px] uppercase tracking-tighter opacity-95 block -mt-0.5 font-black truncate max-w-full px-1">
+                    <span className="text-[7px] uppercase tracking-tighter opacity-95 font-black truncate max-w-full px-0.5">
                       {config.name.split(" ")[0]}
                     </span>
-                  ) : isToday ? (
-                    <span className="text-[7px] uppercase tracking-tighter text-sky-400 font-extrabold block -mt-0.5">
-                      Hoje
+                  ) : (
+                    <span className={`text-[9px] tracking-tight ${
+                      isSelectedInBalloon
+                        ? "text-slate-900 font-black"
+                        : item.precoCustom
+                        ? "text-emerald-400 font-extrabold"
+                        : "text-slate-400 font-semibold"
+                    }`}>
+                      R${dailyPrice}
                     </span>
-                  ) : null}
+                  )}
                 </button>
               );
             })}
           </div>
         </div>
-
-        {/* Legenda dos canais */}
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-2 text-[11px] text-slate-400">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700" />
-            <span>Livre</span>
-          </div>
-          {Object.values(ORIGIN_CONFIG).map((org) => (
-            <div key={org.id} className="flex items-center gap-1.5">
-              <span className={`w-2.5 h-2.5 rounded-full ${org.color}`} />
-              <span>{org.name}</span>
-            </div>
-          ))}
-        </div>
       </div>
 
-      {/* 4. Lista de Datas Ocupadas sem scrollbar visível (no-scrollbar) */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-            Total de Dias Ocupados ({sortedDates.length})
-          </span>
-          {sortedDates.length > 0 && (
-            <span className="text-[11px] text-slate-400">
-              Role para ver todas as datas
-            </span>
-          )}
-        </div>
+      {/* BALÃO PRETO ESTILO AIRBNB (Aparece ao tocar em qualquer data) */}
+      {selectedSheet && (
+        <div className="!mt-0 fixed inset-0 z-[100] bg-black/75 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 sm:p-6 w-full max-w-md max-h-[88vh] overflow-y-auto space-y-4 shadow-[0_20px_60px_rgba(0,0,0,0.9)] text-white my-auto animate-in zoom-in-95 duration-200">
+            {/* Cabeçalho do Balão */}
+            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+              <div>
+                <span className="text-[10px] uppercase font-extrabold tracking-widest text-zinc-400 block">
+                  Configuração da Data
+                </span>
+                <h3 className="text-base font-black text-white mt-0.5">
+                  {selectedSheet.dateKeys.length === 1
+                    ? selectedSheet.dateKeys[0].split("-").reverse().join("/")
+                    : `${selectedSheet.dateKeys.length} noites selecionadas`}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedSheet(null)}
+                className="w-8 h-8 rounded-full bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-        {sortedDates.length > 0 ? (
-          <div className="max-h-56 overflow-y-auto space-y-1.5 no-scrollbar pr-0.5">
-            {sortedDates.map((dateKey) => {
-              const info = datasOcupadas[dateKey];
-              const config =
-                ORIGIN_CONFIG[info?.origem] || ORIGIN_CONFIG.bloqueado;
-              const [y, m, d] = dateKey.split("-");
-
-              return (
-                <div
-                  key={dateKey}
-                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs hover:border-slate-700 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full ${config.color}`} />
-                    <span className="font-bold text-white">
-                      {d}/{m}/{y}
-                    </span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${config.badge}`}
-                    >
-                      {config.name}
-                    </span>
-                    {info?.nota && (
-                      <span className="text-slate-400 text-[11px] truncate max-w-[150px]">
-                        ({info.nota})
-                      </span>
-                    )}
-                  </div>
-
+            <form onSubmit={handleApplyBalloon} className="space-y-5">
+              {/* Input Grande de Preço Estilo Airbnb */}
+              <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 text-center space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block">
+                  Preço por noite
+                </label>
+                <div className="flex items-center justify-center gap-1">
+                  <span className="text-2xl font-black text-zinc-400">R$</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={sheetPrice}
+                    onChange={(e) => setSheetPrice(e.target.value)}
+                    className="w-32 bg-transparent text-3xl font-black text-white text-center focus:outline-none border-b-2 border-zinc-700 focus:border-white pb-1"
+                    autoFocus
+                  />
+                </div>
+                {Number(sheetPrice) !== Number(valorDiariaBase) && (
                   <button
                     type="button"
-                    onClick={() => handleRemoveDate(dateKey)}
-                    className="p-1 rounded text-slate-500 hover:text-red-400 transition-colors"
-                    title="Liberar data"
+                    onClick={() => setSheetPrice(String(valorDiariaBase))}
+                    className="text-[11px] text-sky-400 hover:underline font-semibold pt-1 inline-block"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    Voltar para o valor padrão (R$ {valorDiariaBase})
                   </button>
+                )}
+              </div>
+
+              {/* Status de Disponibilidade no mesmo Balão */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block">
+                  Disponibilidade na data
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSheetStatus("livre")}
+                    className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                      sheetStatus === "livre"
+                        ? "border-white bg-white text-black shadow-md"
+                        : "border-zinc-800 bg-zinc-900 text-zinc-400"
+                    }`}
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                    <span>Disponível (Livre)</span>
+                  </button>
+
+                  {Object.values(ORIGIN_CONFIG).map((org) => (
+                    <button
+                      key={org.id}
+                      type="button"
+                      onClick={() => setSheetStatus(org.id)}
+                      className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                        sheetStatus === org.id
+                          ? "border-white bg-zinc-800 text-white ring-2 ring-white/20"
+                          : "border-zinc-800 bg-zinc-900 text-zinc-400"
+                      }`}
+                    >
+                      <span className={`w-2.5 h-2.5 rounded-full ${org.color}`} />
+                      <span className="truncate">Ocupado: {org.name.split(" ")[0]}</span>
+                    </button>
+                  ))}
                 </div>
-              );
-            })}
+              </div>
+
+              {/* Botão Confirmar do Balão */}
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedSheet(null)}
+                  className="flex-1 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-xs font-bold text-zinc-300"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-black text-xs shadow-lg transition-all active:scale-95"
+                >
+                  Aplicar na Data
+                </button>
+              </div>
+            </form>
           </div>
-        ) : (
-          <p className="text-xs text-slate-500 text-center py-3">
-            Nenhuma data marcada como ocupada ainda.
-          </p>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -49,12 +49,21 @@ export default function AvailabilityCalendar({
   const [guestCount, setGuestCount] = useState(4);
 
   const occupiedDates = property.datas_ocupadas || {};
+  const precosPersonalizados = property.precos_personalizados || {};
   const maxGuests = property.max_hospedes || 8;
 
-  const valorDiariaNum =
+  const valorDiariaBase =
+    property.valor_diaria_base ||
     property.valor_diaria_num ||
     parseInt(String(property.valor_diaria || "").replace(/\D/g, ""), 10) ||
     650;
+
+  const getPrecoNoite = (dateKey) => {
+    const custom = precosPersonalizados[dateKey];
+    return custom !== undefined && custom !== null && custom !== ""
+      ? Number(custom)
+      : Number(valorDiariaBase);
+  };
 
   // Navegação de meses
   const handlePrevMonth = () => {
@@ -155,19 +164,30 @@ export default function AvailabilityCalendar({
     }
   };
 
-  // Calcula noites e total
-  const calculateNights = () => {
-    if (!checkIn || !checkOut) return 0;
-    const d1 = new Date(checkIn);
-    const d2 = new Date(checkOut);
-    const diffTime = Math.abs(d2 - d1);
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // Cálculo exato das diárias flutuantes estilo Airbnb
+  const calculateBookingDetails = () => {
+    if (!checkIn || !checkOut) {
+      return { nights: 0, total: 0, averagePerNight: Number(valorDiariaBase) };
+    }
+
+    // Noites reais são todos os dias de pernoite exceto o dia do check-out
+    const rangeKeys = getDatesInRange(checkIn, checkOut);
+    const nightKeys = rangeKeys.slice(0, -1);
+
+    let total = 0;
+    nightKeys.forEach((key) => {
+      total += getPrecoNoite(key);
+    });
+
+    const nightsCount = nightKeys.length;
+    const average = nightsCount > 0 ? Math.round(total / nightsCount) : Number(valorDiariaBase);
+
+    return { nights: nightsCount, total, averagePerNight: average };
   };
 
-  const nights = calculateNights();
-  const estimatedTotal = nights * valorDiariaNum;
+  const { nights, total: estimatedTotal, averagePerNight } = calculateBookingDetails();
 
-  // Monta o link dinâmico com mensagem personalizada no WhatsApp
+  // Monta o link dinâmico com mensagem transparente no WhatsApp
   const generateWhatsAppLink = () => {
     const baseUrl = (property.link_whatsapp || "https://wa.me/5564999999999").split("?")[0];
     let message = "";
@@ -177,9 +197,9 @@ export default function AvailabilityCalendar({
         checkIn
       )} até ${formatDisplayDate(
         checkOut
-      )} (${nights} noite${nights > 1 ? "s" : ""}). Valor estimado: R$ ${estimatedTotal.toLocaleString(
+      )} (${nights} noite${nights > 1 ? "s" : ""}). Valor calculado: R$ ${estimatedTotal.toLocaleString(
         "pt-BR"
-      )}. Poderia confirmar a disponibilidade?`;
+      )} (média de R$ ${averagePerNight}/diária). Poderia confirmar a disponibilidade?`;
     } else if (checkIn) {
       message = `Olá! Gostaria de consultar reserva na ${property.titulo} para ${guestCount} pessoas, com entrada em ${formatDisplayDate(
         checkIn
@@ -212,6 +232,7 @@ export default function AvailabilityCalendar({
       key,
       occupied: isOccupied(key),
       occupiedInfo: occupiedDates[key],
+      precoDiaria: getPrecoNoite(key),
     });
   }
 
@@ -227,7 +248,7 @@ export default function AvailabilityCalendar({
 
   return (
     <div
-      className={`w-full p-5 sm:p-7 space-y-6 transition-all ${calStyle.containerClass}`}
+      className={`w-full p-5 sm:p-7 space-y-5 transition-all ${calStyle.containerClass}`}
     >
       {/* Top Bar (quando em modal) */}
       {isModal && (
@@ -251,17 +272,26 @@ export default function AvailabilityCalendar({
         </div>
       )}
 
-      {/* Card Resumo de Diária e Noites */}
+      {/* Card Resumo de Diária e Noites (Só mostra valor após selecionar datas) */}
       <div
         className={`p-4 flex items-center rounded-2xl justify-between gap-3 transition-all ${calStyle.summaryCardClass}`}
       >
         <div>
           <span className="text-[10px] font-bold uppercase tracking-wider opacity-70 block">
-            Valor da Diária
+            {checkIn && checkOut
+              ? "Valor Total para o Período"
+              : checkIn
+              ? "Selecione a data de saída (Check-out)"
+              : "Cotação de Estadia"}
           </span>
-          <span className="text-xl sm:text-2xl font-black tracking-tight">
-            {property.valor_diaria}
-            <span className="text-xs font-normal opacity-70"> / noite</span>
+          <span className="text-base sm:text-2xl font-black tracking-tight">
+            {checkIn && checkOut ? (
+              <>R$ {estimatedTotal.toLocaleString("pt-BR")}</>
+            ) : (
+              <span className="text-sm sm:text-base font-bold opacity-85">
+                Selecione as datas no calendário para ver o valor
+              </span>
+            )}
           </span>
         </div>
 
@@ -270,12 +300,21 @@ export default function AvailabilityCalendar({
             <span className="text-[10px] font-bold uppercase tracking-wider opacity-85 block">
               {nights} noite{nights > 1 ? "s" : ""} selecionada{nights > 1 ? "s" : ""}
             </span>
-            <span className={`text-lg sm:text-xl font-black ${activeTheme.accentText || "text-emerald-500"}`}>
-              R$ {estimatedTotal.toLocaleString("pt-BR")}
+            <span className="text-[11px] font-extrabold text-emerald-500">
+              Reserva direta
             </span>
           </div>
         )}
       </div>
+
+      {/* Aviso no fechamento: Estilo grandes plataformas */}
+      {checkIn && checkOut && (
+        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center animate-in fade-in duration-200">
+          <p className="text-[11px] sm:text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            Valores calculados conforme o período selecionado. Reserva direta sem taxas de intermediação.
+          </p>
+        </div>
+      )}
 
       {/* Controles do Mês */}
       <div className="flex items-center justify-between px-1">
@@ -322,7 +361,7 @@ export default function AvailabilityCalendar({
               return (
                 <div
                   key={item.key}
-                  className="h-10 sm:h-12 flex items-center justify-center text-xs opacity-20 font-medium select-none"
+                  className="h-11 sm:h-12 flex items-center justify-center text-xs opacity-20 font-medium select-none"
                 >
                   {item.day}
                 </div>
@@ -340,7 +379,7 @@ export default function AvailabilityCalendar({
               item.key < checkOut;
 
             let cellClass =
-              "h-11 sm:h-12 flex flex-col items-center justify-center text-xs font-bold transition-all relative select-none ";
+              "h-11 sm:h-12 flex flex-col items-center justify-center py-1 text-xs font-bold transition-all relative select-none ";
 
             if (isPastDate) {
               cellClass += calStyle.dayPast;
@@ -369,14 +408,16 @@ export default function AvailabilityCalendar({
                     : "Disponível para reserva"
                 }
               >
-                <span className={isPastDate ? "line-through opacity-70" : ""}>{item.day}</span>
+                <span className={`text-[11px] leading-tight ${isPastDate ? "line-through opacity-70" : ""}`}>
+                  {item.day}
+                </span>
                 {isOccupiedDate && !isPastDate && (
-                  <span className="text-[8px] uppercase tracking-tighter opacity-90 font-black block -mt-0.5">
+                  <span className="text-[7px] uppercase tracking-tighter opacity-90 font-black block">
                     Ocupado
                   </span>
                 )}
                 {isPastDate && (
-                  <span className="text-[7px] uppercase tracking-tighter opacity-50 font-semibold block -mt-0.5">
+                  <span className="text-[7px] uppercase tracking-tighter opacity-50 font-semibold block">
                     Indisp.
                   </span>
                 )}

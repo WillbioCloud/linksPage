@@ -271,6 +271,31 @@ export default function Admin() {
     });
   };
 
+  const handleFaqChange = (index, field, value) => {
+    const currentFaqs = Array.isArray(formData.faqs)
+      ? [...formData.faqs]
+      : [...(DEFAULT_PROPERTY.faqs || [])];
+    currentFaqs[index] = { ...currentFaqs[index], [field]: value };
+    handleChange("faqs", currentFaqs);
+  };
+
+  const handleAddFaq = () => {
+    const currentFaqs = Array.isArray(formData.faqs)
+      ? [...formData.faqs]
+      : [...(DEFAULT_PROPERTY.faqs || [])];
+    handleChange("faqs", [...currentFaqs, { q: "", a: "" }]);
+  };
+
+  const handleRemoveFaq = (indexToRemove) => {
+    const currentFaqs = Array.isArray(formData.faqs)
+      ? [...formData.faqs]
+      : [...(DEFAULT_PROPERTY.faqs || [])];
+    handleChange(
+      "faqs",
+      currentFaqs.filter((_, idx) => idx !== indexToRemove)
+    );
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -487,7 +512,22 @@ export default function Admin() {
 
           <AdminCalendar
             datasOcupadas={formData.datas_ocupadas || {}}
-            onChange={(updatedDates) => handleChange("datas_ocupadas", updatedDates)}
+            precosPersonalizados={formData.precos_personalizados || {}}
+            valorDiariaBase={formData.valor_diaria_base || formData.valor_diaria_num || 650}
+            onChangeOcupacao={(updatedDates) => {
+              setFormData((prev) => {
+                const next = { ...prev, datas_ocupadas: updatedDates };
+                savePropertyToFirebase(next);
+                return next;
+              });
+            }}
+            onChangePrecos={(updatedPrecos) => {
+              setFormData((prev) => {
+                const next = { ...prev, precos_personalizados: updatedPrecos };
+                savePropertyToFirebase(next);
+                return next;
+              });
+            }}
             mostrarCalendario={formData.mostrar_calendario !== false}
             onToggleMostrarCalendario={(val) => handleChange("mostrar_calendario", val)}
           />
@@ -537,18 +577,19 @@ export default function Admin() {
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                Valor da Diária
+                Diária Base Padrão (Dias de Semana)
               </label>
               <input
                 type="text"
-                value={formData.valor_diaria}
+                value={formData.valor_diaria_base ? `R$ ${formData.valor_diaria_base}` : formData.valor_diaria}
                 onChange={(e) => {
                   const val = e.target.value;
                   const num = parseInt(val.replace(/\D/g, ""), 10) || 0;
                   setFormData((prev) => ({
                     ...prev,
-                    valor_diaria: val,
-                    valor_diaria_num: num > 0 ? num : prev.valor_diaria_num,
+                    valor_diaria: `R$ ${num}`,
+                    valor_diaria_num: num,
+                    valor_diaria_base: num,
                   }));
                   setHasChanges(true);
                 }}
@@ -775,6 +816,82 @@ export default function Admin() {
               placeholder="Descreva a casa, quartos, piscina, regras e diferenciais..."
               className="w-full bg-slate-950 border border-slate-700 rounded-xl p-4 text-sm focus:outline-none focus:border-sky-400 transition-colors leading-relaxed"
             />
+          </div>
+        </section>
+
+        {/* ======================================================== */}
+        {/* 4.1 PERGUNTAS FREQUENTES (FAQ)                           */}
+        {/* ======================================================== */}
+        <section
+          className={`p-4 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4 ${
+            abaAtiva === "dados" ? "block" : "hidden md:block"
+          }`}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="space-y-0.5">
+              <h2 className="text-base font-black tracking-tight flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-sky-400"/>
+                Perguntas Frequentes (FAQ)
+              </h2>
+              <p className="text-xs text-slate-400">
+                Adicione ou edite as dúvidas comuns que aparecem na página.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleAddFaq}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 border border-sky-500/30 text-xs font-bold transition-colors self-start sm:self-auto"
+            >
+              <Plus className="w-4 h-4"/>
+              <span>Nova Pergunta</span>
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {(Array.isArray(formData.faqs) && formData.faqs.length > 0
+              ? formData.faqs
+              : DEFAULT_PROPERTY.faqs || []
+            ).map((item, idx) => (
+              <div
+                key={idx}
+                className="p-3.5 sm:p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-sky-400">
+                    Pergunta #{idx + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveFaq(idx)}
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                    title="Remover pergunta"
+                  >
+                    <Trash2 className="w-4 h-4"/>
+                  </button>
+                </div>
+
+                <div className="space-y-1.5">
+                  <input
+                    type="text"
+                    value={item.q}
+                    onChange={(e) => handleFaqChange(idx, "q", e.target.value)}
+                    placeholder="Digite a pergunta (ex: Qual o horário de check-in?)"
+                    className="w-full h-10 bg-slate-900 border border-slate-700 rounded-xl px-3 text-xs sm:text-sm font-bold text-white focus:outline-none focus:border-sky-400"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <textarea
+                    rows={2}
+                    value={item.a}
+                    onChange={(e) => handleFaqChange(idx, "a", e.target.value)}
+                    placeholder="Digite a resposta..."
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs sm:text-sm text-slate-300 focus:outline-none focus:border-sky-400 leading-relaxed"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 

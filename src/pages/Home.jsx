@@ -150,24 +150,10 @@ export default function Home() {
     },
   ];
 
-  const faqs = [
-    {
-      q: "Qual o horário de check-in e check-out?",
-      a: "O check-in padrão é a partir das 8:00 e o check-out até às 11:00. Caso precise de horários flexíveis, converse diretamente pelo WhatsApp para verificar disponibilidade.",
-    },
-    {
-      q: "A piscina é realmente aquecida?",
-      a: "Sim! A piscina conta com aquecimento térmico constante e cascata.",
-    },
-    {
-      q: "Como funciona a reserva direta?",
-      a: "A reserva é feita diretamente com a proprietária, sem taxas abusivas de intermediários. Você recebe confirmação imediata, orientações de chegada e suporte dedicado.",
-    },
-    {
-      q: "A casa aceita animais de estimação (pets)?",
-      a: "Sim, aceitamos pets de pequeno porte com aviso prévio na reserva para mantermos o padrão de higiene e conservação.",
-    },
-  ];
+  const faqs =
+    Array.isArray(property.faqs) && property.faqs.length > 0
+      ? property.faqs
+      : DEFAULT_PROPERTY.faqs;
 
   const scrollToCalendar = () => {
     if (calendarSectionRef.current) {
@@ -414,14 +400,14 @@ export default function Home() {
             <div className="md:sticky md:top-6 space-y-4">
               {/* Card de Reserva Flutuante */}
               <div className={`p-6 rounded-[32px] shadow-2xl space-y-5 border ${theme.cardClass}`}>
-                {/* Header do Card com Preço e Badge de Reserva Direta */}
+                {/* Header do Card sem Preço Fixo */}
                 <div className="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/10">
                   <div>
                     <span className="text-[11px] uppercase font-bold opacity-60 block">
-                      Diária da temporada
+                      Cotação Instantânea
                     </span>
-                    <span className={`text-2xl lg:text-3xl font-black ${theme.accentText}`}>
-                      {property.valor_diaria}
+                    <span className={`text-base lg:text-lg font-black ${theme.accentText}`}>
+                      Selecione as datas para ver o valor
                     </span>
                   </div>
 
@@ -532,16 +518,23 @@ export default function Home() {
                 >
                   <div className="pl-2">
                     <span className="text-[10px] uppercase font-bold text-white/70 block">
-                      Diária da temporada
+                      Acomodação Completa
                     </span>
                     <span className="text-xs sm:text-sm font-semibold text-white/90">
-                      Direto com o proprietário
+                      Sem comissões extras
                     </span>
                   </div>
 
-                  <div className="px-4 py-2 rounded-xl bg-white text-slate-900 font-black text-base sm:text-lg shadow-lg">
-                    {property.valor_diaria}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      scrollToCalendar();
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-white text-slate-900 font-black text-xs shadow-lg text-center leading-tight active:scale-95 transition-transform"
+                  >
+                    Simular Datas
+                  </button>
                 </motion.div>
               </div>
             </div>
@@ -888,9 +881,9 @@ export default function Home() {
       >
         <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
           <div>
-            <span className="text-[10px] uppercase font-bold opacity-60 block">Diária</span>
-            <span className={`text-lg font-black ${theme.accentText}`}>
-              {property.valor_diaria}
+            <span className="text-[10px] uppercase font-bold opacity-60 block">Reserva Direta</span>
+            <span className={`text-xs sm:text-sm font-black ${theme.accentText}`}>
+              Consulte valores no calendário
             </span>
           </div>
 

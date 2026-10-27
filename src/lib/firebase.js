@@ -15,6 +15,8 @@ export const DEFAULT_PROPERTY = {
     "Viva momentos inesquecíveis na Home Paraíso em Caldas Novas. Um refúgio exclusivo de alto padrão com piscina aquecida privativa, cascata, área gourmet completa com churrasqueira e suítes climatizadas com todo o requinte e privacidade que você e sua família merecem.",
   valor_diaria: "R$ 650",
   valor_diaria_num: 650,
+  valor_diaria_base: 650, // Diária base para dias comuns
+  precos_personalizados: {}, // Mapa de diárias específicas: { "YYYY-MM-DD": 750 }
   link_whatsapp: "https://wa.me/5564999999999",
   tema: "modern-app", // 'modern-app' | 'vidro' | 'neumorfismo' | 'obsidiana' | 'brutalista' | 'salvia' | 'retro' | 'ocean' | 'forest' | 'luxury'
   max_hospedes: 10,
@@ -26,6 +28,24 @@ export const DEFAULT_PROPERTY = {
   // Mapa de datas ocupadas: { "YYYY-MM-DD": { origem: 'airbnb' | 'booking' | 'direto' | 'bloqueado', nota?: string } }
   datas_ocupadas: {},
   imagens: [],
+  faqs: [
+    {
+      q: "Qual o horário de check-in e check-out?",
+      a: "O check-in padrão é a partir das 8:00 e o check-out até às 11:00. Caso precise de horários flexíveis, converse diretamente pelo WhatsApp para verificar disponibilidade.",
+    },
+    {
+      q: "A piscina é realmente aquecida?",
+      a: "Sim! A piscina conta com aquecimento térmico constante e cascata.",
+    },
+    {
+      q: "Como funciona a reserva direta?",
+      a: "A reserva é feita diretamente com a proprietária, sem taxas abusivas de intermediários. Você recebe confirmação imediata, orientações de chegada e suporte dedicado.",
+    },
+    {
+      q: "A casa aceita animais de estimação (pets)?",
+      a: "Sim, aceitamos pets de pequeno porte com aviso prévio na reserva para mantermos o padrão de higiene e conservação.",
+    },
+  ],
 };
 
 const LOCAL_STORAGE_KEY = "home_paraiso_property_data_v4";
@@ -79,7 +99,9 @@ export const getLocalProperty = () => {
         ...DEFAULT_PROPERTY,
         ...parsed,
         datas_ocupadas: parsed.datas_ocupadas || {},
+        precos_personalizados: parsed.precos_personalizados || {},
         imagens: Array.isArray(parsed.imagens) ? parsed.imagens : [],
+        faqs: Array.isArray(parsed.faqs) && parsed.faqs.length > 0 ? parsed.faqs : DEFAULT_PROPERTY.faqs,
       };
     }
   } catch (err) {
@@ -119,7 +141,9 @@ export const subscribeToProperty = (onData, onError) => {
             ...DEFAULT_PROPERTY,
             ...remoteData,
             datas_ocupadas: remoteData.datas_ocupadas || {},
+            precos_personalizados: remoteData.precos_personalizados || {},
             imagens: Array.isArray(remoteData.imagens) ? remoteData.imagens : [],
+            faqs: Array.isArray(remoteData.faqs) && remoteData.faqs.length > 0 ? remoteData.faqs : DEFAULT_PROPERTY.faqs,
           };
           saveLocalProperty(merged);
           onData(merged);
