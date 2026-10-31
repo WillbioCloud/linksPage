@@ -17,11 +17,33 @@ function App() {
           </div>
         }
       >
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<Home />} />
-        </Routes>
+        {(() => {
+          // Detecta se o usuário está acessando pelo subdomínio admin.*
+          const isSubdomainAdmin =
+            typeof window !== "undefined" &&
+            (window.location.hostname.startsWith("admin.") ||
+             window.location.search.includes("subdomain=admin"));
+
+          if (isSubdomainAdmin) {
+            return (
+              <Routes>
+                {/* No subdomínio admin, a raiz já carrega o Admin diretamente */}
+                <Route path="/" element={<Admin />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="*" element={<Admin />} />
+              </Routes>
+            );
+          }
+
+          return (
+            <Routes>
+              {/* No domínio principal, carrega a Home e mantém /admin como compatibilidade */}
+              <Route path="/" element={<Home />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="*" element={<Home />} />
+            </Routes>
+          );
+        })()}
       </Suspense>
       <Toaster />
     </Router>
