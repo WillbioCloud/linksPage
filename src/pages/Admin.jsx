@@ -1052,7 +1052,7 @@ export default function Admin() {
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*"
               multiple
               className="hidden"
             />

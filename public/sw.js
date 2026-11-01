@@ -1,5 +1,5 @@
-const CACHE_NAME = "home-paraiso-pwa-v1";
-const STATIC_ASSETS = ["/", "/admin", "/manifest.json"];
+const CACHE_NAME = "home-paraiso-pwa-v2";
+const STATIC_ASSETS = ["/", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -24,26 +24,38 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Ignora requisições para extensões, apis externas ou esquemas não-http
-  if (!event.request.url.startsWith("http")) return;
+  // Ignora requisições não-GET, extensões do navegador ou esquemas não-http
+  if (event.request.method !== "GET" || !event.request.url.startsWith("http")) return;
 
+  // Nunca intercepta requisições para Cloudinary ou Firebase
+  if (
+    event.request.url.includes("cloudinary.com") ||
+    event.request.url.includes("firebase") ||
+    event.request.url.includes("googleapis.com")
+  ) {
+    return;
+  }
+
+  // Para navegações (páginas HTML), sempre busca na rede primeiro para garantir código atualizado
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request) || caches.match("/"))
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request) || caches.match("/"))
     );
     return;
   }
 
+  // Para outros recursos, rede primeiro com fallback para cache
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request)
-          .then((response) => {
-            return response;
-          })
-          .catch(() => cached)
-      );
-    })
+    fetch(event.request)
+      .then((response) => {
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
