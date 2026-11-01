@@ -76,6 +76,20 @@ export default function Home() {
 
   const calendarSectionRef = useRef(null);
   const gallerySectionRef = useRef(null);
+  const [isNearCalendar, setIsNearCalendar] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!calendarSectionRef.current) return;
+      const rect = calendarSectionRef.current.getBoundingClientRect();
+      // Ativa assim que o topo do calendário entra nos 70% superiores da tela do celular
+      setIsNearCalendar(rect.top <= window.innerHeight * 0.7);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Barra de progresso de scroll suave no topo sem impacto em desempenho
   const { scrollYProgress, scrollY } = useScroll();
@@ -872,22 +886,38 @@ export default function Home() {
       >
         <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
           <div>
-            <span className="text-[10px] uppercase font-bold opacity-60 block">Reserva Direta</span>
+            <span className="text-[10px] uppercase font-bold opacity-60 block">
+              {isNearCalendar ? "Tire suas Dúvidas no" : "Reserva Direta"}
+            </span>
             <span className={`text-xs sm:text-sm font-black ${theme.accentText}`}>
-              Consulte valores no calendário
+              {isNearCalendar ? "WhatsApp" : "Consulte valores no calendário"}
             </span>
           </div>
 
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={scrollToCalendar}
-            className={`flex-1 py-3 px-4 rounded-xl text-sm font-black flex items-center justify-center gap-2 shadow-md ${theme.buttonPrimary}`}
-          >
-            <Calendar className="w-4 h-4" />
-            <span>Ver Disponibilidade</span>
-          </motion.button>
+          {isNearCalendar ? (
+            <motion.a
+              href={property.link_whatsapp || "https://wa.me/5564992431535"}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              className={`flex-1 py-3 px-4 rounded-xl text-sm font-black flex items-center justify-center gap-2 shadow-md ${theme.buttonPrimary}`}
+            >
+              <MessageCircle className="w-4 h-4 fill-current" />
+              <span>Reservar no WhatsApp</span>
+            </motion.a>
+          ) : (
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={scrollToCalendar}
+              className={`flex-1 py-3 px-4 rounded-xl text-sm font-black flex items-center justify-center gap-2 shadow-md ${theme.buttonPrimary}`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Ver Disponibilidade</span>
+            </motion.button>
+          )}
         </div>
       </motion.div>
     </div>

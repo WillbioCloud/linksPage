@@ -30,6 +30,10 @@ export const uploadImageToCloudinary = async (file, onProgress) => {
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
 
+  // Nome semântico otimizado para indexação no Google Imagens
+  const cleanId = `home-paraiso-caldas-novas-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  formData.append("public_id", cleanId);
+
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;

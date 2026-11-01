@@ -76,7 +76,7 @@ export default function SEO({ property, faqs = [] }) {
           "url": currentUrl,
           "telephone": property.link_whatsapp?.includes("wa.me/")
             ? `+${property.link_whatsapp.split("wa.me/")[1]?.split("?")[0]}`
-            : "+5564999999999",
+            : "+5564992431535",
           "priceRange": property.valor_diaria || "R$ 650",
           "address": {
             "@type": "PostalAddress",

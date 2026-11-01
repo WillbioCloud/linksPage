@@ -26,7 +26,7 @@ export const DEFAULT_PROPERTY = {
   valor_diaria_num: 650,
   valor_diaria_base: 650, // Diária base para dias comuns
   precos_personalizados: {}, // Mapa de diárias específicas: { "YYYY-MM-DD": 750 }
-  link_whatsapp: "https://wa.me/5564999999999",
+  link_whatsapp: "https://wa.me/5564992431535",
   tema: "modern-app", // 'modern-app' | 'vidro' | 'neumorfismo' | 'obsidiana' | 'brutalista' | 'salvia' | 'retro' | 'ocean' | 'forest' | 'luxury'
   max_hospedes: 10,
   quartos: 3,

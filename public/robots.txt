@@ -1,7 +1,6 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /api/
 
-# Sitemap oficial
 Sitemap: https://homeparaiso.com.br/sitemap.xml

@@ -265,7 +265,7 @@ export default function AvailabilityCalendar({
 
   // Monta o link dinâmico com mensagem transparente no WhatsApp
   const generateWhatsAppLink = () => {
-    const baseUrl = (property.link_whatsapp || "https://wa.me/5564999999999").split("?")[0];
+    const baseUrl = (property.link_whatsapp || "https://wa.me/5564992431535").split("?")[0];
     let message = "";
 
     if (checkIn && checkOut) {
@@ -543,17 +543,21 @@ export default function AvailabilityCalendar({
 
       {/* Seletor de Hóspedes estilo App com Carrossel e Botões de Navegação */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-            <Users className={`w-4 h-4 ${activeTheme.accentText || "opacity-70"}`} />
-            <span>Número de hóspedes</span>
-            <span className="normal-case font-extrabold text-[11px] opacity-85 px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10 ml-0.5">
-              ({guestCount} {guestCount === 1 ? "pessoa" : "pessoas"})
+        <div className="flex items-center justify-between gap-2">
+          <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+            <Users className={`w-4 h-4 shrink-0 ${activeTheme.accentText || "opacity-70"}`} />
+            <span className="whitespace-nowrap">
+              <span className="hidden sm:inline">Número de </span>Hóspedes
             </span>
           </label>
-          <span className="text-xs font-semibold opacity-60">
-            Máx: {maxGuestCount} pessoas
-          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="font-extrabold text-[11px] px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10 whitespace-nowrap">
+              {guestCount} {guestCount === 1 ? "pessoa" : "pessoas"}
+            </span>
+            <span className="text-xs font-medium opacity-60 whitespace-nowrap">
+              Máx: {maxGuestCount}<span className="hidden sm:inline"> pessoas</span>
+            </span>
+          </div>
         </div>
 
         {/* Linha do Carrossel com Botões de Navegação */}

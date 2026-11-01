@@ -89,7 +89,7 @@ export function generateWhatsAppUrlFromPhone(phoneStr) {
   let withoutCountryCode = raw.trim().replace(/^\+55\s*/, "");
   let digits = withoutCountryCode.replace(/\D/g, "");
 
-  if (!digits) return "https://wa.me/5564999999999";
+  if (!digits) return "https://wa.me/5564992431535";
   if (digits.length >= 12 && digits.startsWith("55")) {
     return `https://wa.me/${digits}`;
   }
@@ -836,7 +836,7 @@ export default function Admin() {
             </div>
             <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400 pt-0.5 gap-1">
               <span className="text-slate-500 font-mono text-[10px]">
-                Link gerado: {formData.link_whatsapp || "https://wa.me/5564999999999"}
+                Link gerado: {formData.link_whatsapp || "https://wa.me/5564992431535"}
               </span>
             </div>
           </div>

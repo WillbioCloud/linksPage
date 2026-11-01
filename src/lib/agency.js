@@ -11,7 +11,7 @@ export const agency = {
   tagline:
     "Casas, lofts e chalés selecionados para alugar por temporada no litoral e na serra — anfitriões locais, fotos reais e check-in sem burocracia.",
   city: "Caldas Novas · GO",
-  phone: "+5564999999999",
+  phone: "+5564992431535",
   email: "contato@villamare.com.br",
   instagram: "https://instagram.com/villamare.temporada",
   response: "Responde em até 15 min",
@@ -29,7 +29,7 @@ export const links = [
     label: "Falar no WhatsApp",
     note: "Atendimento imediato, ingressos e hospedagem",
     icon: "whatsapp",
-    href: "https://wa.me/5564999999999?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20parques%20e%20temporada%20em%20Caldas%20Novas.",
+    href: "https://wa.me/5564992431535?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20parques%20e%20temporada%20em%20Caldas%20Novas.",
     external: true,
     featured: true,
   },
@@ -47,7 +47,7 @@ export const links = [
     label: "Consultar Ingressos e Datas",
     note: "Feriados, fins de semana e temporada 2026",
     icon: "reservar",
-    href: "https://wa.me/5564999999999?text=Ol%C3%A1!%20Quero%20consultar%20valores%20de%20ingressos%20e%20datas.",
+    href: "https://wa.me/5564992431535?text=Ol%C3%A1!%20Quero%20consultar%20valores%20de%20ingressos%20e%20datas.",
     external: true,
     featured: false,
   },
@@ -97,7 +97,7 @@ export const properties = [
     unit: " / ingresso",
     status: "Mais Famoso",
     image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80",
-    link: "https://wa.me/5564999999999?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20e%20ingressos%20para%20o%20Hot%20Park.",
+    link: "https://wa.me/5564992431535?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20e%20ingressos%20para%20o%20Hot%20Park.",
   },
   {
     id: "parque-2",
@@ -108,7 +108,7 @@ export const properties = [
     unit: " / ingresso",
     status: "Família & Infantil",
     image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80",
-    link: "https://wa.me/5564999999999?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20e%20ingressos%20para%20o%20diRoma%20Acqua%20Park.",
+    link: "https://wa.me/5564992431535?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20e%20ingressos%20para%20o%20diRoma%20Acqua%20Park.",
   },
   {
     id: "parque-3",
@@ -119,7 +119,7 @@ export const properties = [
     unit: " / ingresso",
     status: "Centro de Caldas",
     image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80",
-    link: "https://wa.me/5564999999999?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20e%20ingressos%20para%20o%20Water%20Park.",
+    link: "https://wa.me/5564992431535?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20e%20ingressos%20para%20o%20Water%20Park.",
   },
   {
     id: "parque-4",
@@ -130,6 +130,6 @@ export const properties = [
     unit: " / ingresso",
     status: "Beira do Lago",
     image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
-    link: "https://wa.me/5564999999999?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20e%20ingressos%20para%20o%20N%C3%A1utico%20Praia%20Clube.",
+    link: "https://wa.me/5564992431535?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20e%20ingressos%20para%20o%20N%C3%A1utico%20Praia%20Clube.",
   },
 ];
