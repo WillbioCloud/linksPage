@@ -516,33 +516,6 @@ export default function Home() {
                 <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">
                   {property.titulo}
                 </h1>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25, duration: 0.4 }}
-                  className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-black/55 backdrop-blur-xl border border-white/20 text-white shadow-2xl"
-                >
-                  <div className="pl-2">
-                    <span className="text-[10px] uppercase font-bold text-white/70 block">
-                      Acomodação Completa
-                    </span>
-                    <span className="text-xs sm:text-sm font-semibold text-white/90">
-                      Sem comissões extras
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      scrollToCalendar();
-                    }}
-                    className="px-3.5 py-2 rounded-xl bg-white text-slate-900 font-black text-xs shadow-lg text-center leading-tight active:scale-95 transition-transform"
-                  >
-                    Simular Datas
-                  </button>
-                </motion.div>
               </div>
             </div>
 
