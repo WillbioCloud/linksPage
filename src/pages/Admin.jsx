@@ -753,9 +753,6 @@ export default function Admin() {
                   <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-neutral-400">
                     Diretas
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
-                    Sem comissão
-                  </span>
                 </div>
                 <div>
                   <p className="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -775,7 +772,7 @@ export default function Admin() {
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
                     <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-                    Ganhos Fechados
+                    Relatórios
                   </span>
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 </div>
