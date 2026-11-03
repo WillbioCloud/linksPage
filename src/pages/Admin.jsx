@@ -622,7 +622,7 @@ export default function Admin() {
   // PAINEL NATIVO DA PROPRIETÁRIA (APP-LIKE)
   // ==========================================
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col select-none sm:select-auto pb-32 md:pb-16">
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col select-none sm:select-auto pb-36 md:pb-16">
       {/* ======================================================== */}
       {/* 1. CABEÇALHO NATIVO COMPACTO (Top App Bar Sticky)        */}
       {/* ======================================================== */}
@@ -1590,7 +1590,7 @@ export default function Admin() {
         <div
           className="fixed left-4 right-4 z-50 max-w-sm mx-auto bg-neutral-900/95 backdrop-blur-2xl border border-neutral-700/90 p-2 sm:p-2.5 rounded-full shadow-2xl shadow-black/90 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5 duration-300 md:!bottom-6"
           style={{
-            bottom: "max(84px, calc(env(safe-area-inset-bottom, 0px) + 78px))",
+            bottom: "max(98px, calc(env(safe-area-inset-bottom, 0px) + 90px))",
           }}
         >
           <div className="flex items-center gap-2.5 pl-3">
@@ -1619,9 +1619,9 @@ export default function Admin() {
       {/* 2. DOCK DE NAVEGAÇÃO INFERIOR FLUTUANTE (Floating Dock)  */}
       {/* ======================================================== */}
       <nav
-        className="fixed left-3 right-3 z-40 md:hidden max-w-lg mx-auto bg-neutral-950/90 backdrop-blur-2xl border border-neutral-800/90 rounded-[26px] p-1.5 flex items-center justify-around shadow-[0_12px_36px_rgba(0,0,0,0.75),0_0_1px_rgba(255,255,255,0.12)] ring-1 ring-white/5"
+        className="fixed left-3.5 right-3.5 z-40 md:hidden max-w-lg mx-auto bg-neutral-950/90 backdrop-blur-2xl border border-neutral-800/90 rounded-[26px] p-1.5 flex items-center justify-around shadow-[0_16px_40px_rgba(0,0,0,0.85),0_0_1px_rgba(255,255,255,0.12)] ring-1 ring-white/5"
         style={{
-          bottom: "max(12px, calc(env(safe-area-inset-bottom, 0px) + 8px))",
+          bottom: "max(22px, calc(env(safe-area-inset-bottom, 0px) + 16px))",
         }}
       >
         {TABS.map((tab) => {
